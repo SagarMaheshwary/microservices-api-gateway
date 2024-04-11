@@ -1,0 +1,78 @@
+syntax="proto3";
+
+package auth;
+
+option go_package = "github.com/SagarMaheshwary/microservices-authentication-service/proto/authentication";
+
+service AuthenticationService {
+  rpc Register(RegisterRequest) returns (RegisterResponse) {};
+  rpc Login(LoginRequest) returns (LoginResponse) {}
+  rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse) {};
+  rpc Logout(LogoutRequest) returns (LogoutResponse) {};
+}
+
+message User {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+  optional string image = 4;
+  optional string created_at = 5;
+  optional string updated_at = 6;
+}
+
+message RegisterRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message RegisterResponse {
+  string message = 1;
+  RegisterResponseData data = 2;
+}
+
+message RegisterResponseData {
+  string token = 1;
+  User user = 2;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string message = 1;
+  LoginResponseData data = 2;
+}
+
+message LoginResponseData {
+  string token = 1;
+  User user = 2;
+}
+
+message VerifyTokenRequest {
+  //
+}
+
+message VerifyTokenResponse {
+  string message = 1;
+  VerifyTokenResponseData data = 2;
+}
+
+message VerifyTokenResponseData {
+  User user = 1;
+}
+
+message LogoutRequest {
+  //
+}
+
+message LogoutResponse {
+  string message = 1;
+  LogoutResponseData data = 2;
+}
+
+message LogoutResponseData {
+  //
+}

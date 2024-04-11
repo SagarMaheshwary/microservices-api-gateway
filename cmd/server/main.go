@@ -1,7 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"github.com/sagarmaheshwary/microservices-api-gateway/config"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/http"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
+)
 
 func main() {
-	fmt.Println("Hello World")
+	log.Init()
+	config.Init()
+
+	authentication.Connect()
+	http.Connect()
 }
