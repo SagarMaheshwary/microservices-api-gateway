@@ -4,8 +4,10 @@ import (
 	"context"
 
 	"github.com/sagarmaheshwary/microservices-api-gateway/config"
+	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constants"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
 	pb "github.com/sagarmaheshwary/microservices-api-gateway/proto/authentication/authentication"
+	"google.golang.org/grpc/metadata"
 )
 
 var Auth *authenticationClient
@@ -46,10 +48,13 @@ func (a *authenticationClient) Login(data *pb.LoginRequest) (*pb.LoginResponse, 
 	return response, nil
 }
 
-func (a *authenticationClient) VerifyToken(data *pb.VerifyTokenRequest) (*pb.VerifyTokenResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), config.GetgrpcClient().Timeout)
+func (a *authenticationClient) VerifyToken(data *pb.VerifyTokenRequest, token string) (*pb.VerifyTokenResponse, error) {
+	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.GetgrpcClient().Timeout)
 
 	defer cancel()
+
+	md := metadata.Pairs(cons.HDR_AUTHORIZATION, token)
+	ctx := metadata.NewOutgoingContext(ctxTimeout, md)
 
 	response, err := a.client.VerifyToken(ctx, data)
 
@@ -62,10 +67,13 @@ func (a *authenticationClient) VerifyToken(data *pb.VerifyTokenRequest) (*pb.Ver
 	return response, nil
 }
 
-func (a *authenticationClient) Logout(data *pb.LogoutRequest) (*pb.LogoutResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), config.GetgrpcClient().Timeout)
+func (a *authenticationClient) Logout(data *pb.LogoutRequest, token string) (*pb.LogoutResponse, error) {
+	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.GetgrpcClient().Timeout)
 
 	defer cancel()
+
+	md := metadata.Pairs(cons.HDR_AUTHORIZATION, token)
+	ctx := metadata.NewOutgoingContext(ctxTimeout, md)
 
 	response, err := a.client.Logout(ctx, data)
 

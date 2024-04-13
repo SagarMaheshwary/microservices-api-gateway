@@ -4,9 +4,14 @@ package constants
 const (
 	MSGOK                  = "Success"
 	MSGCreated             = "Created New Resource"
-	MSGInternalServerError = "Internal Server Error"
-	MSGNotFound            = "Resource Not Found"
-	MSGUnauthenticated     = "Unauthenticated"
-	MSGUnauthorized        = "Unauthorized"
 	MSGBadRequest          = "Bad Request"
+	MSGUnauthorized        = "Unauthorized"
+	MSGForbidden           = "Forbidden"
+	MSGNotFound            = "Resource Not Found"
+	MSGInternalServerError = "Internal Server Error"
+)
+
+// gRPC metadata headers
+const (
+	HDR_AUTHORIZATION = "authorization"
 )
