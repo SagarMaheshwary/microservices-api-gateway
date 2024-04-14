@@ -26,6 +26,10 @@ type LogoutValidationError struct {
 	//
 }
 
+type VerifyTokenValidationError struct {
+	//
+}
+
 type AuthorizationHeader struct {
 	Token string `header:"authorization" binding:"required"`
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/sagarmaheshwary/microservices-api-gateway/config"
-	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constants"
+	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
 	pb "github.com/sagarmaheshwary/microservices-api-gateway/proto/authentication/authentication"
 	"google.golang.org/grpc/metadata"
@@ -53,7 +53,7 @@ func (a *authenticationClient) VerifyToken(data *pb.VerifyTokenRequest, token st
 
 	defer cancel()
 
-	md := metadata.Pairs(cons.HDR_AUTHORIZATION, token)
+	md := metadata.Pairs(cons.HeaderAuthorization, token)
 	ctx := metadata.NewOutgoingContext(ctxTimeout, md)
 
 	response, err := a.client.VerifyToken(ctx, data)
@@ -72,7 +72,7 @@ func (a *authenticationClient) Logout(data *pb.LogoutRequest, token string) (*pb
 
 	defer cancel()
 
-	md := metadata.Pairs(cons.HDR_AUTHORIZATION, token)
+	md := metadata.Pairs(cons.HeaderAuthorization, token)
 	ctx := metadata.NewOutgoingContext(ctxTimeout, md)
 
 	response, err := a.client.Logout(ctx, data)

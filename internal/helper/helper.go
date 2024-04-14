@@ -11,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constants"
+	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -23,7 +23,14 @@ func RootDir() string {
 	return filepath.Dir(d)
 }
 
-func TransformValidationErrors(err error, obj any) map[string][]string {
+func PrepareResponse(message string, data any) gin.H {
+	return gin.H{
+		"message": message,
+		"data":    data,
+	}
+}
+
+func PrepareResponseFromValidationError(err error, obj any) gin.H {
 	errors := map[string][]string{}
 
 	for _, e := range err.(validator.ValidationErrors) {
@@ -36,7 +43,7 @@ func TransformValidationErrors(err error, obj any) map[string][]string {
 	fields := reflect.VisibleFields(reflect.Indirect(reflect.ValueOf(obj)).Type())
 
 	//Set non-error key/value pair as empty slice to
-	//keep consistency in data.
+	//keep "errors" field consistent with grpc response.
 	for _, field := range fields {
 		t, _ := field.Tag.Lookup("json")
 
@@ -45,7 +52,9 @@ func TransformValidationErrors(err error, obj any) map[string][]string {
 		}
 	}
 
-	return errors
+	return PrepareResponse(cons.MessageBadRequest, gin.H{
+		"errors": errors,
+	})
 }
 
 func ValidationErrorByTag(tag string, field string) string {
@@ -62,19 +71,14 @@ func PrepareResponseFromgrpcError(err error, obj any) (int, gin.H) {
 	e, _ := status.FromError(err)
 
 	status := GRPCTohttpCode(e.Code())
-	data := gin.H{
-		"errors": gin.H{},
-	}
+	data := gin.H{}
 
 	if status == http.StatusBadRequest {
 		json.Unmarshal([]byte(e.Message()), &obj)
 		data["errors"] = obj
 	}
 
-	response := gin.H{
-		"message": HTTPCodeToMessage(status),
-		"data":    data,
-	}
+	response := PrepareResponse(HTTPCodeToMessage(status), data)
 
 	return status, response
 }
@@ -101,18 +105,18 @@ func GRPCTohttpCode(code codes.Code) int {
 func HTTPCodeToMessage(code int) string {
 	switch code {
 	case http.StatusOK:
-		return cons.MSGOK
+		return cons.MessageOK
 	case http.StatusBadRequest:
-		return cons.MSGBadRequest
+		return cons.MessageBadRequest
 	case http.StatusUnauthorized:
-		return cons.MSGUnauthorized
+		return cons.MessageUnauthorized
 	case http.StatusForbidden:
-		return cons.MSGForbidden
+		return cons.MessageForbidden
 	case http.StatusNotFound:
-		return cons.MSGNotFound
+		return cons.MessageNotFound
 	case http.StatusInternalServerError:
-		return cons.MSGInternalServerError
+		return cons.MessageInternalServerError
 	default:
-		return cons.MSGInternalServerError
+		return cons.MessageInternalServerError
 	}
 }

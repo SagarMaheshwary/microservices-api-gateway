@@ -4,8 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constants"
-	auth "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
+	authrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/helper"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/types"
 	apb "github.com/sagarmaheshwary/microservices-api-gateway/proto/authentication/authentication"
@@ -16,19 +15,13 @@ func Register(c *gin.Context) {
 	ve := new(types.RegisterValidationError)
 
 	if err := c.ShouldBindJSON(&in); err != nil {
-		errors := helper.TransformValidationErrors(err, ve)
-
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": cons.MSGBadRequest,
-			"data": gin.H{
-				"errors": errors,
-			},
-		})
+		response := helper.PrepareResponseFromValidationError(err, ve)
+		c.JSON(http.StatusBadRequest, response)
 
 		return
 	}
 
-	response, err := auth.Auth.Register(&apb.RegisterRequest{
+	response, err := authrpc.Auth.Register(&apb.RegisterRequest{
 		Name:     in.Name,
 		Email:    in.Email,
 		Password: in.Password,
@@ -49,19 +42,13 @@ func Login(c *gin.Context) {
 	ve := new(types.LoginValidationError)
 
 	if err := c.ShouldBind(&in); err != nil {
-		errors := helper.TransformValidationErrors(err, ve)
-
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": cons.MSGBadRequest,
-			"data": gin.H{
-				"errors": errors,
-			},
-		})
+		response := helper.PrepareResponseFromValidationError(err, ve)
+		c.JSON(http.StatusBadRequest, response)
 
 		return
 	}
 
-	response, err := auth.Auth.Login(&apb.LoginRequest{
+	response, err := authrpc.Auth.Login(&apb.LoginRequest{
 		Email:    in.Email,
 		Password: in.Password,
 	})
@@ -79,16 +66,9 @@ func Login(c *gin.Context) {
 func Logout(c *gin.Context) {
 	h := new(types.AuthorizationHeader)
 
-	if err := c.ShouldBindHeader(&h); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": cons.MSGUnauthorized,
-			"data":    gin.H{},
-		})
+	c.ShouldBindHeader(&h)
 
-		return
-	}
-
-	response, err := auth.Auth.Logout(&apb.LogoutRequest{}, h.Token)
+	response, err := authrpc.Auth.Logout(&apb.LogoutRequest{}, h.Token)
 
 	if err != nil {
 		status, response := helper.PrepareResponseFromgrpcError(err, &types.LogoutValidationError{})
