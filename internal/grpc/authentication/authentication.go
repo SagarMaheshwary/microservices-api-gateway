@@ -3,10 +3,10 @@ package authentication
 import (
 	"context"
 
-	"github.com/sagarmaheshwary/microservices-api-gateway/config"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
 	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
-	pb "github.com/sagarmaheshwary/microservices-api-gateway/proto/authentication/authentication"
+	pb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
 	"google.golang.org/grpc/metadata"
 )
 

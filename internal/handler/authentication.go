@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	authrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/helper"
+	apb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/types"
-	apb "github.com/sagarmaheshwary/microservices-api-gateway/proto/authentication/authentication"
 )
 
 func Register(c *gin.Context) {

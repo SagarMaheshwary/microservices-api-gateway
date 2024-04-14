@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sagarmaheshwary/microservices-api-gateway/config"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/router"
 )

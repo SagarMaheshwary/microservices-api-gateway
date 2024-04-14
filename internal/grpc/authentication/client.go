@@ -1,9 +1,9 @@
 package authentication
 
 import (
-	"github.com/sagarmaheshwary/microservices-api-gateway/config"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
-	apb "github.com/sagarmaheshwary/microservices-api-gateway/proto/authentication/authentication"
+	apb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
