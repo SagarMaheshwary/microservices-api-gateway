@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package videocatalog;
+
+option go_package = "github.com/SagarMaheshwary/microservices-api-gateway/proto/video_catalog/video_catalog";
+
+service VideoCatalogService {
+  rpc FindAll(FindAllRequest) returns (FindAllResponse) {};
+  rpc FindById(FindByIdRequest) returns (FindByIdResponse) {};
+}
+
+message User {
+  int32 id = 1;
+  string name = 2;
+  optional string image = 4;
+}
+
+message Video {
+  int32 id = 1;
+  string title = 2;
+  string description = 3;
+  string thumbnail_url = 4;
+  string published_at = 5;
+  int32 duration = 6;
+  string resolution = 7;
+  User user = 8;
+}
+
+message FindAllRequest {
+  //
+}
+
+message FindAllResponse {
+  string message = 1;
+  FindAllResponseData data = 2;
+}
+
+message FindAllResponseData {
+  repeated Video videos = 1;
+}
+
+message FindByIdRequest {
+  int32 id = 1;
+}
+
+message FindByIdResponse {
+  string message = 1;
+  FindByIdResponseData data = 2;
+}
+
+message FindByIdResponseData {
+  Video video = 1;
+}

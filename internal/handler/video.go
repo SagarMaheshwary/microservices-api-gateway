@@ -7,10 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
 	urpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/upload"
+	vcrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/video_catalog"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/helper"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
 	apb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
 	upb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/upload/upload"
+	vcpb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/video_catalog"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/types"
 )
 
@@ -58,6 +60,45 @@ func UploadedWebhook(c *gin.Context) {
 
 	if err != nil {
 		status, response := helper.PrepareResponseFromgrpcError(err, ve)
+		c.JSON(status, response)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func FindAll(c *gin.Context) {
+	response, err := vcrpc.VideoCatalog.FindAll(&vcpb.FindAllRequest{})
+
+	if err != nil {
+		status, response := helper.PrepareResponseFromgrpcError(err, gin.H{})
+		c.JSON(status, response)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func FindById(c *gin.Context) {
+	videoId := c.Param("id")
+
+	id, err := strconv.Atoi(videoId)
+
+	if err != nil {
+		log.Error("Unable to parse video id %v", err)
+		c.JSON(http.StatusInternalServerError, helper.PrepareResponse(cons.MessageInternalServerError, gin.H{}))
+
+		return
+	}
+
+	response, err := vcrpc.VideoCatalog.FindById(&vcpb.FindByIdRequest{
+		Id: int32(id),
+	})
+
+	if err != nil {
+		status, response := helper.PrepareResponseFromgrpcError(err, gin.H{})
 		c.JSON(status, response)
 
 		return
