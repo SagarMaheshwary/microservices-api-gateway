@@ -5,35 +5,34 @@ import (
 
 	"github.com/gin-gonic/gin"
 	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
-	authrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
+	arpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/helper"
-	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
 	apb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/types"
 )
 
 func VerifyToken() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+	return func(c *gin.Context) {
 		h := new(types.AuthorizationHeader)
 
-		if err := ctx.ShouldBindHeader(&h); err != nil {
+		if err := c.ShouldBindHeader(&h); err != nil {
 			response := helper.PrepareResponse(cons.MessageUnauthorized, gin.H{})
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
 
 			return
 		}
 
-		response, err := authrpc.Auth.VerifyToken(&apb.VerifyTokenRequest{}, h.Token)
+		response, err := arpc.Auth.VerifyToken(&apb.VerifyTokenRequest{}, h.Token)
 
 		if err != nil {
 			status, response := helper.PrepareResponseFromgrpcError(err, &types.VerifyTokenValidationError{})
-			ctx.AbortWithStatusJSON(status, response)
+			c.AbortWithStatusJSON(status, response)
 
 			return
 		}
 
-		log.Info("Token is valid: %v", response)
+		c.Set(cons.AuthUser, response.Data.User)
 
-		ctx.Next()
+		c.Next()
 	}
 }

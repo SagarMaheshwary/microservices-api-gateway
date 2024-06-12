@@ -13,4 +13,10 @@ func InitRoutes(r *gin.Engine) {
 		auth.POST("/login", handler.Login)
 		auth.POST("/logout", middleware.VerifyToken(), handler.Logout)
 	}
+
+	videos := r.Group("/videos")
+	{
+		videos.POST("/upload/presigned-url", middleware.VerifyToken(), handler.CreatePresignedUrl)
+		videos.POST("/upload/webhook", middleware.VerifyToken(), handler.UploadedWebhook)
+	}
 }

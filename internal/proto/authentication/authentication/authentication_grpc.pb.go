@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v5.26.0
-// source: proto/authentication/authentication/authentication.proto
+// source: internal/proto/authentication/authentication/authentication.proto
 
 package authentication
 
@@ -209,5 +209,5 @@ var AuthenticationService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/authentication/authentication/authentication.proto",
+	Metadata: "internal/proto/authentication/authentication/authentication.proto",
 }

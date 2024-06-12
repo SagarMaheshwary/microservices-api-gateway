@@ -25,6 +25,7 @@ type httpServer struct {
 
 type grpcClient struct {
 	AuthenticationServiceurl string
+	UploadServiceurl         string
 	Timeout                  time.Duration
 }
 
@@ -56,6 +57,7 @@ func Init() {
 		},
 		GRPCClient: &grpcClient{
 			AuthenticationServiceurl: Getenv("GRPC_AUTHENTICATION_SERVICE_URL", "localhost:5001"),
+			UploadServiceurl:         Getenv("GRPC_UPLOAD_SERVICE_URL", "localhost:5002"),
 			Timeout:                  time.Duration(timeout) * time.Second,
 		},
 	}

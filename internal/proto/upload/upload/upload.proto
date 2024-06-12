@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package upload;
+
+option go_package = "github.com/SagarMaheshwary/microservices-api-gateway/proto/upload/upload";
+
+service UploadService {
+  rpc CreatePresignedUrl(CreatePresignedUrlRequest) returns (CreatePresignedUrlResponse) {};
+  rpc UploadedWebhook(UploadedWebhookRequest) returns (UploadedWebhookResponse) {};
+}
+
+message CreatePresignedUrlRequest {
+  //
+}
+
+message CreatePresignedUrlResponse {
+  string message = 1;
+  CreatePresignedUrlResponseData data = 2;
+}
+
+message CreatePresignedUrlResponseData {
+  string video_id = 1;
+  string thumbnail_id = 2;
+  string video_url = 3;
+  string thumbnail_url = 4;
+}
+
+message UploadedWebhookRequest {
+  string video_id = 1;
+  string thumbnail_id = 2;
+  string title = 3;
+  string description = 4;
+}
+
+message UploadedWebhookResponse {
+  string message = 1;
+  UploadedWebhookResponseData data = 2;
+}
+
+message UploadedWebhookResponseData {
+  //
+}

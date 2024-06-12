@@ -14,4 +14,9 @@ const (
 // gRPC metadata headers
 const (
 	HeaderAuthorization = "authorization"
+	HeaderUserId        = "x-user-id"
+)
+
+const (
+	AuthUser = "user"
 )
