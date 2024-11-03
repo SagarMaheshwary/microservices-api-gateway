@@ -16,7 +16,7 @@ func InitRoutes(r *gin.Engine) {
 
 	videos := r.Group("/videos")
 	{
-		videos.GET("/", handler.FindAll)
+		videos.GET("", handler.FindAll)
 		videos.GET("/:id", handler.FindById)
 		videos.POST("/upload/presigned-url", middleware.VerifyToken(), handler.CreatePresignedUrl)
 		videos.POST("/upload/webhook", middleware.VerifyToken(), handler.UploadedWebhook)

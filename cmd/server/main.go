@@ -13,6 +13,9 @@ func main() {
 	log.Init()
 	config.Init()
 
+	//@TODO: currently gRPC clients don't failed even if the server is down
+	//so implement retry mechanisms with exponential backoff. Also implement
+	//circuit breaker
 	arpc.Connect()
 	urpc.Connect()
 	vcrpc.Connect()

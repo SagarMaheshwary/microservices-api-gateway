@@ -9,6 +9,7 @@ const (
 	MessageForbidden           = "Forbidden"
 	MessageNotFound            = "Resource Not Found"
 	MessageInternalServerError = "Internal Server Error"
+	MessageServiceUnavailable  = "Service Unavailable"
 )
 
 // gRPC metadata headers

@@ -97,6 +97,8 @@ func GRPCTohttpCode(code codes.Code) int {
 		return http.StatusNotFound
 	case codes.Internal:
 		return http.StatusInternalServerError
+	case codes.Unavailable:
+		return http.StatusServiceUnavailable
 	default:
 		return http.StatusInternalServerError
 	}
@@ -116,6 +118,8 @@ func HTTPCodeToMessage(code int) string {
 		return cons.MessageNotFound
 	case http.StatusInternalServerError:
 		return cons.MessageInternalServerError
+	case http.StatusServiceUnavailable:
+		return cons.MessageServiceUnavailable
 	default:
 		return cons.MessageInternalServerError
 	}
