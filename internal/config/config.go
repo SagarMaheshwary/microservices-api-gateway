@@ -11,19 +11,19 @@ import (
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
 )
 
-var conf *Config
+var Conf *Config
 
 type Config struct {
-	HTTPServer *httpServer
-	GRPCClient *grpcClient
+	HTTPServer *HTTPServer
+	GRPCClient *GRPCClient
 }
 
-type httpServer struct {
+type HTTPServer struct {
 	Host string
 	Port int
 }
 
-type grpcClient struct {
+type GRPCClient struct {
 	AuthenticationServiceurl string
 	UploadServiceurl         string
 	VideoCatalogServiceurl   string
@@ -39,44 +39,40 @@ func Init() {
 
 	log.Info("Loaded %q", envPath)
 
-	port, err := strconv.Atoi(Getenv("HTTP_PORT", "4000"))
-
-	if err != nil {
-		log.Error("Invalid HTTP_PORT value %v", err)
-	}
-
-	timeout, err := strconv.Atoi(Getenv("GRPC_CLIENT_TIMEOUT_SECONDS", "5"))
-
-	if err != nil {
-		log.Error("Invalid GRPC_CLIENT_TIMEOUT_SECONDS value %v", err)
-	}
-
-	conf = &Config{
-		HTTPServer: &httpServer{
-			Host: Getenv("HTTP_HOST", "localhost"),
-			Port: port,
+	Conf = &Config{
+		HTTPServer: &HTTPServer{
+			Host: getEnv("HTTP_HOST", "localhost"),
+			Port: getEnvInt("HTTP_PORT", 4000),
 		},
-		GRPCClient: &grpcClient{
-			AuthenticationServiceurl: Getenv("GRPC_AUTHENTICATION_SERVICE_URL", "localhost:5001"),
-			UploadServiceurl:         Getenv("GRPC_UPLOAD_SERVICE_URL", "localhost:5002"),
-			VideoCatalogServiceurl:   Getenv("GRPC_VIDEO_CATALOG_SERVICE_URL", "localhost:5002"),
-			Timeout:                  time.Duration(timeout) * time.Second,
+		GRPCClient: &GRPCClient{
+			AuthenticationServiceurl: getEnv("GRPC_AUTHENTICATION_SERVICE_URL", "localhost:5001"),
+			UploadServiceurl:         getEnv("GRPC_UPLOAD_SERVICE_URL", "localhost:5002"),
+			VideoCatalogServiceurl:   getEnv("GRPC_VIDEO_CATALOG_SERVICE_URL", "localhost:5002"),
+			Timeout:                  getEnvDuration("GRPC_CLIENT_TIMEOUT_SECONDS", 5),
 		},
 	}
 }
 
-func GethttpServer() *httpServer {
-	return conf.HTTPServer
-}
-
-func GetgrpcClient() *grpcClient {
-	return conf.GRPCClient
-}
-
-func Getenv(key string, defaultVal string) string {
+func getEnv(key string, defaultVal string) string {
 	if val := os.Getenv(key); val != "" {
 		return val
 	}
 
 	return defaultVal
+}
+
+func getEnvInt(key string, defaultVal int) int {
+	if val, err := strconv.Atoi(os.Getenv(key)); err == nil {
+		return val
+	}
+
+	return defaultVal
+}
+
+func getEnvDuration(key string, defaultVal time.Duration) time.Duration {
+	if val, err := strconv.Atoi(os.Getenv(key)); err == nil {
+		return time.Duration(val) * time.Second
+	}
+
+	return defaultVal * time.Second
 }

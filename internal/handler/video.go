@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
 	urpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/upload"
 	vcrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/video_catalog"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/helper"
@@ -33,12 +33,12 @@ func UploadedWebhook(c *gin.Context) {
 	in := new(types.UploadedWebhookInput)
 	ve := new(types.UploadedWebhookValidationError)
 
-	u, exists := c.Get(cons.AuthUser)
+	u, exists := c.Get(constant.AuthUser)
 
 	if !exists {
 		log.Error("Authenticated user does not exists in context!")
 
-		c.JSON(http.StatusInternalServerError, helper.PrepareResponse(cons.MessageInternalServerError, gin.H{}))
+		c.JSON(http.StatusInternalServerError, helper.PrepareResponse(constant.MessageInternalServerError, gin.H{}))
 		return
 	}
 
@@ -88,7 +88,7 @@ func FindById(c *gin.Context) {
 
 	if err != nil {
 		log.Error("Unable to parse video id %v", err)
-		c.JSON(http.StatusInternalServerError, helper.PrepareResponse(cons.MessageInternalServerError, gin.H{}))
+		c.JSON(http.StatusInternalServerError, helper.PrepareResponse(constant.MessageInternalServerError, gin.H{}))
 
 		return
 	}

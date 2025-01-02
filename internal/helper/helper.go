@@ -11,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -52,7 +52,7 @@ func PrepareResponseFromValidationError(err error, obj any) gin.H {
 		}
 	}
 
-	return PrepareResponse(cons.MessageBadRequest, gin.H{
+	return PrepareResponse(constant.MessageBadRequest, gin.H{
 		"errors": errors,
 	})
 }
@@ -107,20 +107,20 @@ func GRPCTohttpCode(code codes.Code) int {
 func HTTPCodeToMessage(code int) string {
 	switch code {
 	case http.StatusOK:
-		return cons.MessageOK
+		return constant.MessageOK
 	case http.StatusBadRequest:
-		return cons.MessageBadRequest
+		return constant.MessageBadRequest
 	case http.StatusUnauthorized:
-		return cons.MessageUnauthorized
+		return constant.MessageUnauthorized
 	case http.StatusForbidden:
-		return cons.MessageForbidden
+		return constant.MessageForbidden
 	case http.StatusNotFound:
-		return cons.MessageNotFound
+		return constant.MessageNotFound
 	case http.StatusInternalServerError:
-		return cons.MessageInternalServerError
+		return constant.MessageInternalServerError
 	case http.StatusServiceUnavailable:
-		return cons.MessageServiceUnavailable
+		return constant.MessageServiceUnavailable
 	default:
-		return cons.MessageInternalServerError
+		return constant.MessageInternalServerError
 	}
 }

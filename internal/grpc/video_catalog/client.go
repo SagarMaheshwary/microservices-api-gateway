@@ -13,7 +13,7 @@ func Connect() {
 
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
-	address := config.GetgrpcClient().VideoCatalogServiceurl
+	address := config.Conf.GRPCClient.VideoCatalogServiceurl
 
 	conn, err := grpc.Dial(address, opts...)
 

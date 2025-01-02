@@ -50,4 +50,5 @@ message FindByIdResponse {
 
 message FindByIdResponseData {
   Video video = 1;
+  string manifest_url = 2;
 }

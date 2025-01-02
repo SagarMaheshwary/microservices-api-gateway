@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
 	arpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/helper"
 	apb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
@@ -16,7 +16,7 @@ func VerifyToken() gin.HandlerFunc {
 		h := new(types.AuthorizationHeader)
 
 		if err := c.ShouldBindHeader(&h); err != nil {
-			response := helper.PrepareResponse(cons.MessageUnauthorized, gin.H{})
+			response := helper.PrepareResponse(constant.MessageUnauthorized, gin.H{})
 			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
 
 			return
@@ -31,7 +31,7 @@ func VerifyToken() gin.HandlerFunc {
 			return
 		}
 
-		c.Set(cons.AuthUser, response.Data.User)
+		c.Set(constant.AuthUser, response.Data.User)
 
 		c.Next()
 	}

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
-	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
 	pb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/upload/upload"
 	"google.golang.org/grpc/metadata"
@@ -17,7 +17,7 @@ type uploadClient struct {
 }
 
 func (u *uploadClient) CreatePresignedUrl(data *pb.CreatePresignedUrlRequest) (*pb.CreatePresignedUrlResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), config.GetgrpcClient().Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 
@@ -33,11 +33,11 @@ func (u *uploadClient) CreatePresignedUrl(data *pb.CreatePresignedUrlRequest) (*
 }
 
 func (u *uploadClient) UploadedWebhook(data *pb.UploadedWebhookRequest, userId string) (*pb.UploadedWebhookResponse, error) {
-	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.GetgrpcClient().Timeout)
+	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 
-	md := metadata.Pairs(cons.HeaderUserId, userId)
+	md := metadata.Pairs(constant.HeaderUserId, userId)
 	ctx := metadata.NewOutgoingContext(ctxTimeout, md)
 
 	response, err := u.client.UploadedWebhook(ctx, data)

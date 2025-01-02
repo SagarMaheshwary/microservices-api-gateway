@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
-	cons "github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
 	pb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
 	"google.golang.org/grpc/metadata"
@@ -17,7 +17,7 @@ type authenticationClient struct {
 }
 
 func (a *authenticationClient) Register(data *pb.RegisterRequest) (*pb.RegisterResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), config.GetgrpcClient().Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 
@@ -33,7 +33,7 @@ func (a *authenticationClient) Register(data *pb.RegisterRequest) (*pb.RegisterR
 }
 
 func (a *authenticationClient) Login(data *pb.LoginRequest) (*pb.LoginResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), config.GetgrpcClient().Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 
@@ -49,11 +49,11 @@ func (a *authenticationClient) Login(data *pb.LoginRequest) (*pb.LoginResponse, 
 }
 
 func (a *authenticationClient) VerifyToken(data *pb.VerifyTokenRequest, token string) (*pb.VerifyTokenResponse, error) {
-	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.GetgrpcClient().Timeout)
+	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 
-	md := metadata.Pairs(cons.HeaderAuthorization, token)
+	md := metadata.Pairs(constant.HeaderAuthorization, token)
 	ctx := metadata.NewOutgoingContext(ctxTimeout, md)
 
 	response, err := a.client.VerifyToken(ctx, data)
@@ -68,11 +68,11 @@ func (a *authenticationClient) VerifyToken(data *pb.VerifyTokenRequest, token st
 }
 
 func (a *authenticationClient) Logout(data *pb.LogoutRequest, token string) (*pb.LogoutResponse, error) {
-	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.GetgrpcClient().Timeout)
+	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 
-	md := metadata.Pairs(cons.HeaderAuthorization, token)
+	md := metadata.Pairs(constant.HeaderAuthorization, token)
 	ctx := metadata.NewOutgoingContext(ctxTimeout, md)
 
 	response, err := a.client.Logout(ctx, data)
