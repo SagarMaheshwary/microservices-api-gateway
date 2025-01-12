@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	arpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
+	authrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/helper"
-	apb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
+	authpb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/types"
 )
 
@@ -21,7 +21,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	response, err := arpc.Auth.Register(&apb.RegisterRequest{
+	response, err := authrpc.Auth.Register(&authpb.RegisterRequest{
 		Name:     in.Name,
 		Email:    in.Email,
 		Password: in.Password,
@@ -48,7 +48,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	response, err := arpc.Auth.Login(&apb.LoginRequest{
+	response, err := authrpc.Auth.Login(&authpb.LoginRequest{
 		Email:    in.Email,
 		Password: in.Password,
 	})
@@ -68,7 +68,7 @@ func Logout(c *gin.Context) {
 
 	c.ShouldBindHeader(&h)
 
-	response, err := arpc.Auth.Logout(&apb.LogoutRequest{}, h.Token)
+	response, err := authrpc.Auth.Logout(&authpb.LogoutRequest{}, h.Token)
 
 	if err != nil {
 		status, response := helper.PrepareResponseFromgrpcError(err, &types.LogoutValidationError{})

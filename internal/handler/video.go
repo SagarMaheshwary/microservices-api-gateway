@@ -6,18 +6,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
-	urpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/upload"
-	vcrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/video_catalog"
+	uploadrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/upload"
+	videocatalogrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/video_catalog"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/helper"
-	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
-	apb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
-	upb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/upload/upload"
-	vcpb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/video_catalog"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/logger"
+	authpb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
+	uploadpb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/upload/upload"
+	videocatalogpb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/video_catalog"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/types"
 )
 
 func CreatePresignedUrl(c *gin.Context) {
-	response, err := urpc.Upload.CreatePresignedUrl(&upb.CreatePresignedUrlRequest{})
+	response, err := uploadrpc.Upload.CreatePresignedUrl(&uploadpb.CreatePresignedUrlRequest{})
 
 	if err != nil {
 		status, response := helper.PrepareResponseFromgrpcError(err, gin.H{})
@@ -36,13 +36,13 @@ func UploadedWebhook(c *gin.Context) {
 	u, exists := c.Get(constant.AuthUser)
 
 	if !exists {
-		log.Error("Authenticated user does not exists in context!")
+		logger.Error("Authenticated user does not exists in context!")
 
 		c.JSON(http.StatusInternalServerError, helper.PrepareResponse(constant.MessageInternalServerError, gin.H{}))
 		return
 	}
 
-	user := u.(*apb.User)
+	user := u.(*authpb.User)
 
 	if err := c.ShouldBind(&in); err != nil {
 		response := helper.PrepareResponseFromValidationError(err, ve)
@@ -51,7 +51,7 @@ func UploadedWebhook(c *gin.Context) {
 		return
 	}
 
-	response, err := urpc.Upload.UploadedWebhook(&upb.UploadedWebhookRequest{
+	response, err := uploadrpc.Upload.UploadedWebhook(&uploadpb.UploadedWebhookRequest{
 		VideoId:     in.VideoId,
 		ThumbnailId: in.ThumbnailId,
 		Title:       in.Title,
@@ -69,7 +69,7 @@ func UploadedWebhook(c *gin.Context) {
 }
 
 func FindAll(c *gin.Context) {
-	response, err := vcrpc.VideoCatalog.FindAll(&vcpb.FindAllRequest{})
+	response, err := videocatalogrpc.VideoCatalog.FindAll(&videocatalogpb.FindAllRequest{})
 
 	if err != nil {
 		status, response := helper.PrepareResponseFromgrpcError(err, gin.H{})
@@ -87,13 +87,13 @@ func FindById(c *gin.Context) {
 	id, err := strconv.Atoi(videoId)
 
 	if err != nil {
-		log.Error("Unable to parse video id %v", err)
+		logger.Error("Unable to parse video id %v", err)
 		c.JSON(http.StatusInternalServerError, helper.PrepareResponse(constant.MessageInternalServerError, gin.H{}))
 
 		return
 	}
 
-	response, err := vcrpc.VideoCatalog.FindById(&vcpb.FindByIdRequest{
+	response, err := videocatalogrpc.VideoCatalog.FindById(&videocatalogpb.FindByIdRequest{
 		Id: int32(id),
 	})
 

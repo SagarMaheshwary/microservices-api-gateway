@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
-	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/logger"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/router"
 )
 
@@ -25,10 +25,10 @@ func Connect() {
 		Handler: r,
 	}
 
-	log.Info("HTTP server started on %v", address)
+	logger.Info("HTTP server started on %v", address)
 
 	if err := s.ListenAndServe(); err != nil {
-		log.Error("HTTP server failed to start %v", err)
+		logger.Error("HTTP server failed to start %v", err)
 	}
 }
 

@@ -2,23 +2,19 @@ package main
 
 import (
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
-	arpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
-	urpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/upload"
-	vcrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/video_catalog"
+	authrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
+	userrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/upload"
+	videocatalogrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/video_catalog"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/http"
-	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/logger"
 )
 
 func main() {
-	log.Init()
+	logger.Init()
 	config.Init()
 
-	//@TODO: currently gRPC clients don't failed even if the server is down
-	//so implement retry mechanisms with exponential backoff. Also implement
-	//circuit breaker
-	arpc.Connect()
-	urpc.Connect()
-	vcrpc.Connect()
-
+	authrpc.Connect()
+	userrpc.Connect()
+	videocatalogrpc.Connect()
 	http.Connect()
 }

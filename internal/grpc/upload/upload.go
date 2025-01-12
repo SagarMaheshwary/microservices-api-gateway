@@ -5,18 +5,20 @@ import (
 
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
-	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
-	pb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/upload/upload"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/logger"
+	uploadpb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/upload/upload"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/metadata"
 )
 
 var Upload *uploadClient
 
 type uploadClient struct {
-	client pb.UploadServiceClient
+	client uploadpb.UploadServiceClient
+	health healthpb.HealthClient
 }
 
-func (u *uploadClient) CreatePresignedUrl(data *pb.CreatePresignedUrlRequest) (*pb.CreatePresignedUrlResponse, error) {
+func (u *uploadClient) CreatePresignedUrl(data *uploadpb.CreatePresignedUrlRequest) (*uploadpb.CreatePresignedUrlResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
@@ -24,7 +26,7 @@ func (u *uploadClient) CreatePresignedUrl(data *pb.CreatePresignedUrlRequest) (*
 	response, err := u.client.CreatePresignedUrl(ctx, data)
 
 	if err != nil {
-		log.Error("gRPC uploadClient.CreatePresignedUrl failed %v", err)
+		logger.Error("gRPC uploadClient.CreatePresignedUrl failed %v", err)
 
 		return nil, err
 	}
@@ -32,7 +34,7 @@ func (u *uploadClient) CreatePresignedUrl(data *pb.CreatePresignedUrlRequest) (*
 	return response, nil
 }
 
-func (u *uploadClient) UploadedWebhook(data *pb.UploadedWebhookRequest, userId string) (*pb.UploadedWebhookResponse, error) {
+func (u *uploadClient) UploadedWebhook(data *uploadpb.UploadedWebhookRequest, userId string) (*uploadpb.UploadedWebhookResponse, error) {
 	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
@@ -43,7 +45,7 @@ func (u *uploadClient) UploadedWebhook(data *pb.UploadedWebhookRequest, userId s
 	response, err := u.client.UploadedWebhook(ctx, data)
 
 	if err != nil {
-		log.Error("gRPC uploadClient.CreatePresignedUrl failed %v", err)
+		logger.Error("gRPC uploadClient.CreatePresignedUrl failed %v", err)
 
 		return nil, err
 	}

@@ -7,6 +7,8 @@ import (
 )
 
 func InitRoutes(r *gin.Engine) {
+	r.GET("/health", handler.Health)
+
 	auth := r.Group("/auth")
 	{
 		auth.POST("/register", handler.Register)

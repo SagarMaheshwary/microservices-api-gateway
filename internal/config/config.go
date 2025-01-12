@@ -8,7 +8,7 @@ import (
 
 	"github.com/gofor-little/env"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/helper"
-	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/logger"
 )
 
 var Conf *Config
@@ -34,10 +34,10 @@ func Init() {
 	envPath := path.Join(helper.RootDir(), "..", ".env")
 
 	if err := env.Load(envPath); err != nil {
-		log.Fatal("Failed to load .env %q: %v", envPath, err)
+		logger.Fatal("Failed to load .env %q: %v", envPath, err)
 	}
 
-	log.Info("Loaded %q", envPath)
+	logger.Info("Loaded %q", envPath)
 
 	Conf = &Config{
 		HTTPServer: &HTTPServer{

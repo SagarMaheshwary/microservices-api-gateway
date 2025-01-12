@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
-	arpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
+	authrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/helper"
-	apb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
+	authpb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/types"
 )
 
@@ -22,7 +22,7 @@ func VerifyToken() gin.HandlerFunc {
 			return
 		}
 
-		response, err := arpc.Auth.VerifyToken(&apb.VerifyTokenRequest{}, h.Token)
+		response, err := authrpc.Auth.VerifyToken(&authpb.VerifyTokenRequest{}, h.Token)
 
 		if err != nil {
 			status, response := helper.PrepareResponseFromgrpcError(err, &types.VerifyTokenValidationError{})

@@ -5,18 +5,20 @@ import (
 
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
-	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/log"
-	pb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/logger"
+	authpb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/metadata"
 )
 
 var Auth *authenticationClient
 
 type authenticationClient struct {
-	client pb.AuthenticationServiceClient
+	client authpb.AuthenticationServiceClient
+	health healthpb.HealthClient
 }
 
-func (a *authenticationClient) Register(data *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+func (a *authenticationClient) Register(data *authpb.RegisterRequest) (*authpb.RegisterResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
@@ -24,7 +26,7 @@ func (a *authenticationClient) Register(data *pb.RegisterRequest) (*pb.RegisterR
 	response, err := a.client.Register(ctx, data)
 
 	if err != nil {
-		log.Error("gRPC authenticationClient.Register failed %v", err)
+		logger.Error("gRPC authenticationClient.Register failed %v", err)
 
 		return nil, err
 	}
@@ -32,7 +34,7 @@ func (a *authenticationClient) Register(data *pb.RegisterRequest) (*pb.RegisterR
 	return response, nil
 }
 
-func (a *authenticationClient) Login(data *pb.LoginRequest) (*pb.LoginResponse, error) {
+func (a *authenticationClient) Login(data *authpb.LoginRequest) (*authpb.LoginResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
@@ -40,7 +42,7 @@ func (a *authenticationClient) Login(data *pb.LoginRequest) (*pb.LoginResponse, 
 	response, err := a.client.Login(ctx, data)
 
 	if err != nil {
-		log.Error("gRPC authenticationClient.Login failed %v", err)
+		logger.Error("gRPC authenticationClient.Login failed %v", err)
 
 		return nil, err
 	}
@@ -48,7 +50,7 @@ func (a *authenticationClient) Login(data *pb.LoginRequest) (*pb.LoginResponse, 
 	return response, nil
 }
 
-func (a *authenticationClient) VerifyToken(data *pb.VerifyTokenRequest, token string) (*pb.VerifyTokenResponse, error) {
+func (a *authenticationClient) VerifyToken(data *authpb.VerifyTokenRequest, token string) (*authpb.VerifyTokenResponse, error) {
 	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
@@ -59,7 +61,7 @@ func (a *authenticationClient) VerifyToken(data *pb.VerifyTokenRequest, token st
 	response, err := a.client.VerifyToken(ctx, data)
 
 	if err != nil {
-		log.Error("gRPC authenticationClient.VerifyToken failed %v", err)
+		logger.Error("gRPC authenticationClient.VerifyToken failed %v", err)
 
 		return nil, err
 	}
@@ -67,7 +69,7 @@ func (a *authenticationClient) VerifyToken(data *pb.VerifyTokenRequest, token st
 	return response, nil
 }
 
-func (a *authenticationClient) Logout(data *pb.LogoutRequest, token string) (*pb.LogoutResponse, error) {
+func (a *authenticationClient) Logout(data *authpb.LogoutRequest, token string) (*authpb.LogoutResponse, error) {
 	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
@@ -78,7 +80,7 @@ func (a *authenticationClient) Logout(data *pb.LogoutRequest, token string) (*pb
 	response, err := a.client.Logout(ctx, data)
 
 	if err != nil {
-		log.Error("gRPC authenticationClient.Logout failed %v", err)
+		logger.Error("gRPC authenticationClient.Logout failed %v", err)
 
 		return nil, err
 	}
