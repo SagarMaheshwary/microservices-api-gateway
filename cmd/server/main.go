@@ -7,6 +7,7 @@ import (
 	videocatalogrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/video_catalog"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/http"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/logger"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/prometheus"
 )
 
 func main() {
@@ -16,5 +17,6 @@ func main() {
 	authrpc.Connect()
 	userrpc.Connect()
 	videocatalogrpc.Connect()
+	prometheus.Init()
 	http.Connect()
 }

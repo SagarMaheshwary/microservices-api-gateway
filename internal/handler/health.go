@@ -8,21 +8,29 @@ import (
 	uploadrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/upload"
 	videocatalogrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/video_catalog"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/helper"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/prometheus"
 )
 
 func Health(c *gin.Context) {
-
 	if !getServicesHealthStatus() {
-		c.JSON(http.StatusServiceUnavailable, helper.PrepareResponse("Some services are not available!", gin.H{
+		prometheus.ServiceHealth.Set(0)
+
+		response := helper.PrepareResponse("Some services are not available!", gin.H{
 			"status": "degraded",
-		}))
+		})
+
+		c.JSON(http.StatusServiceUnavailable, response)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, helper.PrepareResponse("All services are healthy!", gin.H{
+	prometheus.ServiceHealth.Set(1)
+
+	response := helper.PrepareResponse("All services are healthy!", gin.H{
 		"status": "healthy",
-	}))
+	})
+
+	c.JSON(http.StatusOK, response)
 }
 
 func getServicesHealthStatus() bool {

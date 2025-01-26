@@ -11,7 +11,7 @@ import (
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/types"
 )
 
-func VerifyToken() gin.HandlerFunc {
+func VerifyTokenMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		h := new(types.AuthorizationHeader)
 
