@@ -63,6 +63,23 @@ func Login(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+func Profile(c *gin.Context) {
+	h := new(types.AuthorizationHeader)
+
+	c.ShouldBindHeader(&h)
+
+	response, err := authrpc.Auth.VerifyToken(&authpb.VerifyTokenRequest{}, h.Token)
+
+	if err != nil {
+		status, response := helper.PrepareResponseFromgrpcError(err, &types.VerifyTokenValidationError{})
+		c.JSON(status, response)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 func Logout(c *gin.Context) {
 	h := new(types.AuthorizationHeader)
 

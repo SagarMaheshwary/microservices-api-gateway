@@ -3,7 +3,8 @@
 		"_postman_id": "6248a6f5-9ec2-41fc-9d8f-d30ef2fd79fc",
 		"name": "Microservices",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "3897427"
+		"_exporter_id": "3897427",
+		"_collection_link": "https://personal-9359.postman.co/workspace/Personal-Workspace~4c7e6729-8727-4605-81c0-b2cb12b21495/collection/3897427-6248a6f5-9ec2-41fc-9d8f-d30ef2fd79fc?action=share&source=collection_link&creator=3897427"
 	},
 	"item": [
 		{
@@ -16,7 +17,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Daniel\",\n    \"email\": \"daniel@gmail.com\",\n    \"password\": \"password123\"\n}",
+							"raw": "{\n    \"name\": \"Daniel\",\n    \"email\": \"daniel10@gmail.com\",\n    \"password\": \"password123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -71,7 +72,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "BEARER TOKEN",
+									"value": "{{BEARER_TOKEN}}",
 									"type": "string"
 								}
 							]
@@ -90,8 +91,163 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BEARER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_GATEWAY_URL}}/auth/profile",
+							"host": [
+								"{{API_GATEWAY_URL}}"
+							],
+							"path": [
+								"auth",
+								"profile"
+							]
+						}
+					},
+					"response": []
 				}
 			]
+		},
+		{
+			"name": "Videos",
+			"item": [
+				{
+					"name": "Create Presigned URL",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BEARER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{API_GATEWAY_URL}}/videos/upload/presigned-url",
+							"host": [
+								"{{API_GATEWAY_URL}}"
+							],
+							"path": [
+								"videos",
+								"upload",
+								"presigned-url"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Uploaded Webhook",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BEARER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"video_id\": \"s3-upload-id\",\n    \"title\": \"Example Video\",\n    \"description\": \"This is video description\",\n    \"thumbnail_id\": \"s3-upload-id\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_GATEWAY_URL}}/videos/upload/webhook",
+							"host": [
+								"{{API_GATEWAY_URL}}"
+							],
+							"path": [
+								"videos",
+								"upload",
+								"webhook"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listing",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_GATEWAY_URL}}/videos",
+							"host": [
+								"{{API_GATEWAY_URL}}"
+							],
+							"path": [
+								"videos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Video Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{API_GATEWAY_URL}}/videos/1",
+							"host": [
+								"{{API_GATEWAY_URL}}"
+							],
+							"path": [
+								"videos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{API_GATEWAY_URL}}/health",
+					"host": [
+						"{{API_GATEWAY_URL}}"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }

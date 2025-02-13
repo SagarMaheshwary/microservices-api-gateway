@@ -15,6 +15,7 @@ func InitRoutes(r *gin.Engine) {
 	{
 		auth.POST("/register", handler.Register)
 		auth.POST("/login", handler.Login)
+		auth.GET("/profile", middleware.VerifyTokenMiddleware(), handler.Profile)
 		auth.POST("/logout", middleware.VerifyTokenMiddleware(), handler.Logout)
 	}
 
