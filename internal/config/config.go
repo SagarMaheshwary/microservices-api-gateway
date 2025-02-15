@@ -31,13 +31,17 @@ type GRPCClient struct {
 }
 
 func Init() {
-	envPath := path.Join(helper.RootDir(), "..", ".env")
+	envPath := path.Join(helper.GetRootDir(), "..", ".env")
 
-	if err := env.Load(envPath); err != nil {
-		logger.Fatal("Failed to load .env %q: %v", envPath, err)
+	if _, err := os.Stat(envPath); err == nil {
+		if err := env.Load(envPath); err != nil {
+			logger.Fatal("Failed to load .env %q: %v", envPath, err)
+		}
+
+		logger.Info("Loaded environment variables from %q", envPath)
+	} else {
+		logger.Info(".env file not found, using system environment variables")
 	}
-
-	logger.Info("Loaded %q", envPath)
 
 	Conf = &Config{
 		HTTPServer: &HTTPServer{

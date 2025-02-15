@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func RootDir() string {
+func GetRootDir() string {
 	_, b, _, _ := runtime.Caller(0)
 	d := path.Join(path.Dir(b))
 
