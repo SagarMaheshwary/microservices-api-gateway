@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+	"log"
+
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
 	authrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
 	userrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/upload"
@@ -20,7 +23,15 @@ func main() {
 	videocatalogrpc.Connect()
 
 	prometheus.Init()
-	jaeger.Init()
+
+	ctx := context.Background()
+	shutdown := jaeger.Init(ctx)
+
+	defer func() {
+		if err := shutdown(ctx); err != nil {
+			log.Fatalf("failed to shutdown tracer: %v", err)
+		}
+	}()
 
 	http.Connect()
 }

@@ -14,7 +14,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 )
 
-func configureTracer(ctx context.Context) func(context.Context) error {
+func Init(ctx context.Context) func(context.Context) error {
 	exporter, err := otlptracehttp.New(ctx,
 		otlptracehttp.WithEndpoint(config.Conf.Jaeger.URL),
 		otlptracehttp.WithInsecure(),
@@ -35,15 +35,4 @@ func configureTracer(ctx context.Context) func(context.Context) error {
 	otel.SetTextMapPropagator(propagation.TraceContext{})
 
 	return tp.Shutdown
-}
-
-func Init() {
-	ctx := context.Background()
-	shutdown := configureTracer(ctx)
-
-	defer func() {
-		if err := shutdown(ctx); err != nil {
-			log.Fatalf("failed to shutdown tracer: %v", err)
-		}
-	}()
 }
