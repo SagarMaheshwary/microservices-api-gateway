@@ -14,10 +14,12 @@ const (
 
 // gRPC metadata headers
 const (
-	HeaderAuthorization = "authorization"
-	HeaderUserId        = "x-user-id"
+	GRPCHeaderAuthorization = "authorization"
+	GRPCHeaderUserId        = "x-user-id"
 )
 
 const (
 	AuthUser = "user"
 )
+
+const ServiceName = "API Gateway"

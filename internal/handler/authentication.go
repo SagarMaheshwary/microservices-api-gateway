@@ -21,7 +21,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	response, err := authrpc.Auth.Register(&authpb.RegisterRequest{
+	response, err := authrpc.Auth.Register(c.Request.Context(), &authpb.RegisterRequest{
 		Name:     in.Name,
 		Email:    in.Email,
 		Password: in.Password,
@@ -48,7 +48,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	response, err := authrpc.Auth.Login(&authpb.LoginRequest{
+	response, err := authrpc.Auth.Login(c.Request.Context(), &authpb.LoginRequest{
 		Email:    in.Email,
 		Password: in.Password,
 	})
@@ -68,7 +68,7 @@ func Profile(c *gin.Context) {
 
 	c.ShouldBindHeader(&h)
 
-	response, err := authrpc.Auth.VerifyToken(&authpb.VerifyTokenRequest{}, h.Token)
+	response, err := authrpc.Auth.VerifyToken(c.Request.Context(), &authpb.VerifyTokenRequest{}, h.Token)
 
 	if err != nil {
 		status, response := helper.PrepareResponseFromgrpcError(err, &types.VerifyTokenValidationError{})
@@ -85,7 +85,7 @@ func Logout(c *gin.Context) {
 
 	c.ShouldBindHeader(&h)
 
-	response, err := authrpc.Auth.Logout(&authpb.LogoutRequest{}, h.Token)
+	response, err := authrpc.Auth.Logout(c.Request.Context(), &authpb.LogoutRequest{}, h.Token)
 
 	if err != nil {
 		status, response := helper.PrepareResponseFromgrpcError(err, &types.LogoutValidationError{})

@@ -17,7 +17,7 @@ import (
 )
 
 func CreatePresignedUrl(c *gin.Context) {
-	response, err := uploadrpc.Upload.CreatePresignedUrl(&uploadpb.CreatePresignedUrlRequest{})
+	response, err := uploadrpc.Upload.CreatePresignedUrl(c.Request.Context(), &uploadpb.CreatePresignedUrlRequest{})
 
 	if err != nil {
 		status, response := helper.PrepareResponseFromgrpcError(err, gin.H{})
@@ -51,7 +51,7 @@ func UploadedWebhook(c *gin.Context) {
 		return
 	}
 
-	response, err := uploadrpc.Upload.UploadedWebhook(&uploadpb.UploadedWebhookRequest{
+	response, err := uploadrpc.Upload.UploadedWebhook(c.Request.Context(), &uploadpb.UploadedWebhookRequest{
 		VideoId:     in.VideoId,
 		ThumbnailId: in.ThumbnailId,
 		Title:       in.Title,
@@ -69,7 +69,7 @@ func UploadedWebhook(c *gin.Context) {
 }
 
 func FindAll(c *gin.Context) {
-	response, err := videocatalogrpc.VideoCatalog.FindAll(&videocatalogpb.FindAllRequest{})
+	response, err := videocatalogrpc.VideoCatalog.FindAll(c.Request.Context(), &videocatalogpb.FindAllRequest{})
 
 	if err != nil {
 		status, response := helper.PrepareResponseFromgrpcError(err, gin.H{})
@@ -93,7 +93,7 @@ func FindById(c *gin.Context) {
 		return
 	}
 
-	response, err := videocatalogrpc.VideoCatalog.FindById(&videocatalogpb.FindByIdRequest{
+	response, err := videocatalogrpc.VideoCatalog.FindById(c.Request.Context(), &videocatalogpb.FindByIdRequest{
 		Id: int32(id),
 	})
 

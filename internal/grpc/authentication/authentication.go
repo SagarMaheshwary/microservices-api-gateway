@@ -18,8 +18,8 @@ type authenticationClient struct {
 	health healthpb.HealthClient
 }
 
-func (a *authenticationClient) Register(data *authpb.RegisterRequest) (*authpb.RegisterResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
+func (a *authenticationClient) Register(ctx context.Context, data *authpb.RegisterRequest) (*authpb.RegisterResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 
@@ -34,8 +34,8 @@ func (a *authenticationClient) Register(data *authpb.RegisterRequest) (*authpb.R
 	return response, nil
 }
 
-func (a *authenticationClient) Login(data *authpb.LoginRequest) (*authpb.LoginResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
+func (a *authenticationClient) Login(ctx context.Context, data *authpb.LoginRequest) (*authpb.LoginResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 
@@ -50,13 +50,13 @@ func (a *authenticationClient) Login(data *authpb.LoginRequest) (*authpb.LoginRe
 	return response, nil
 }
 
-func (a *authenticationClient) VerifyToken(data *authpb.VerifyTokenRequest, token string) (*authpb.VerifyTokenResponse, error) {
-	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
+func (a *authenticationClient) VerifyToken(ctx context.Context, data *authpb.VerifyTokenRequest, token string) (*authpb.VerifyTokenResponse, error) {
+	ctxTimeout, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 
-	md := metadata.Pairs(constant.HeaderAuthorization, token)
-	ctx := metadata.NewOutgoingContext(ctxTimeout, md)
+	md := metadata.Pairs(constant.GRPCHeaderAuthorization, token)
+	ctx = metadata.NewOutgoingContext(ctxTimeout, md)
 
 	response, err := a.client.VerifyToken(ctx, data)
 
@@ -69,13 +69,13 @@ func (a *authenticationClient) VerifyToken(data *authpb.VerifyTokenRequest, toke
 	return response, nil
 }
 
-func (a *authenticationClient) Logout(data *authpb.LogoutRequest, token string) (*authpb.LogoutResponse, error) {
-	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
+func (a *authenticationClient) Logout(ctx context.Context, data *authpb.LogoutRequest, token string) (*authpb.LogoutResponse, error) {
+	ctxTimeout, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 
-	md := metadata.Pairs(constant.HeaderAuthorization, token)
-	ctx := metadata.NewOutgoingContext(ctxTimeout, md)
+	md := metadata.Pairs(constant.GRPCHeaderAuthorization, token)
+	ctx = metadata.NewOutgoingContext(ctxTimeout, md)
 
 	response, err := a.client.Logout(ctx, data)
 

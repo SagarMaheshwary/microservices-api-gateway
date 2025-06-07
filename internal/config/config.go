@@ -16,6 +16,7 @@ var Conf *Config
 type Config struct {
 	HTTPServer *HTTPServer
 	GRPCClient *GRPCClient
+	Jaeger     *Jaeger
 }
 
 type HTTPServer struct {
@@ -24,10 +25,14 @@ type HTTPServer struct {
 }
 
 type GRPCClient struct {
-	AuthenticationServiceurl string
-	UploadServiceurl         string
-	VideoCatalogServiceurl   string
+	AuthenticationServiceURL string
+	UploadServiceURL         string
+	VideoCatalogServiceURL   string
 	Timeout                  time.Duration
+}
+
+type Jaeger struct {
+	URL string
 }
 
 func Init() {
@@ -49,10 +54,13 @@ func Init() {
 			Port: getEnvInt("HTTP_PORT", 4000),
 		},
 		GRPCClient: &GRPCClient{
-			AuthenticationServiceurl: getEnv("GRPC_AUTHENTICATION_SERVICE_URL", "localhost:5001"),
-			UploadServiceurl:         getEnv("GRPC_UPLOAD_SERVICE_URL", "localhost:5002"),
-			VideoCatalogServiceurl:   getEnv("GRPC_VIDEO_CATALOG_SERVICE_URL", "localhost:5002"),
+			AuthenticationServiceURL: getEnv("GRPC_AUTHENTICATION_SERVICE_URL", "localhost:5001"),
+			UploadServiceURL:         getEnv("GRPC_UPLOAD_SERVICE_URL", "localhost:5002"),
+			VideoCatalogServiceURL:   getEnv("GRPC_VIDEO_CATALOG_SERVICE_URL", "localhost:5002"),
 			Timeout:                  getEnvDuration("GRPC_CLIENT_TIMEOUT_SECONDS", 5),
+		},
+		Jaeger: &Jaeger{
+			URL: getEnv("JAEGER_URL", "localhost:4318"),
 		},
 	}
 }

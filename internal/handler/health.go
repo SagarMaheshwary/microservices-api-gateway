@@ -12,7 +12,7 @@ import (
 )
 
 func Health(c *gin.Context) {
-	if !getServicesHealthStatus() {
+	if !getServicesHealthStatus(c) {
 		prometheus.ServiceHealth.Set(0)
 
 		response := helper.PrepareResponse("Some services are not available!", gin.H{
@@ -33,16 +33,18 @@ func Health(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func getServicesHealthStatus() bool {
-	if !authrpc.HealthCheck() {
+func getServicesHealthStatus(c *gin.Context) bool {
+	ctx := c.Request.Context()
+
+	if !authrpc.HealthCheck(ctx) {
 		return false
 	}
 
-	if !videocatalogrpc.HealthCheck() {
+	if !videocatalogrpc.HealthCheck(ctx) {
 		return false
 	}
 
-	if !uploadrpc.HealthCheck() {
+	if !uploadrpc.HealthCheck(ctx) {
 		return false
 	}
 

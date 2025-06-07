@@ -6,9 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/logger"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/middleware"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/router"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 func Connect() {
@@ -17,6 +19,7 @@ func Connect() {
 
 	r := gin.Default()
 
+	r.Use(otelgin.Middleware(constant.ServiceName))
 	r.Use(middleware.PrometheusMiddleware())
 	r.Use(middleware.CORSMiddleware()) //@TODO: should it be in code or reverse proxy?
 

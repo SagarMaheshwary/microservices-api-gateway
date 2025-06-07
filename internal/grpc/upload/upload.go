@@ -18,8 +18,8 @@ type uploadClient struct {
 	health healthpb.HealthClient
 }
 
-func (u *uploadClient) CreatePresignedUrl(data *uploadpb.CreatePresignedUrlRequest) (*uploadpb.CreatePresignedUrlResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
+func (u *uploadClient) CreatePresignedUrl(ctx context.Context, data *uploadpb.CreatePresignedUrlRequest) (*uploadpb.CreatePresignedUrlResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 
@@ -34,13 +34,13 @@ func (u *uploadClient) CreatePresignedUrl(data *uploadpb.CreatePresignedUrlReque
 	return response, nil
 }
 
-func (u *uploadClient) UploadedWebhook(data *uploadpb.UploadedWebhookRequest, userId string) (*uploadpb.UploadedWebhookResponse, error) {
-	ctxTimeout, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
+func (u *uploadClient) UploadedWebhook(ctx context.Context, data *uploadpb.UploadedWebhookRequest, userId string) (*uploadpb.UploadedWebhookResponse, error) {
+	ctxTimeout, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 
-	md := metadata.Pairs(constant.HeaderUserId, userId)
-	ctx := metadata.NewOutgoingContext(ctxTimeout, md)
+	md := metadata.Pairs(constant.GRPCHeaderUserId, userId)
+	ctx = metadata.NewOutgoingContext(ctxTimeout, md)
 
 	response, err := u.client.UploadedWebhook(ctx, data)
 

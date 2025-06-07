@@ -16,8 +16,8 @@ type videoCatalogClient struct {
 	health healthpb.HealthClient
 }
 
-func (v *videoCatalogClient) FindAll(data *videocatalogpb.FindAllRequest) (*videocatalogpb.FindAllResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
+func (v *videoCatalogClient) FindAll(ctx context.Context, data *videocatalogpb.FindAllRequest) (*videocatalogpb.FindAllResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 
@@ -32,8 +32,8 @@ func (v *videoCatalogClient) FindAll(data *videocatalogpb.FindAllRequest) (*vide
 	return response, nil
 }
 
-func (v *videoCatalogClient) FindById(data *videocatalogpb.FindByIdRequest) (*videocatalogpb.FindByIdResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), config.Conf.GRPCClient.Timeout)
+func (v *videoCatalogClient) FindById(ctx context.Context, data *videocatalogpb.FindByIdRequest) (*videocatalogpb.FindByIdResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
 
 	defer cancel()
 

@@ -22,7 +22,7 @@ func VerifyTokenMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		response, err := authrpc.Auth.VerifyToken(&authpb.VerifyTokenRequest{}, h.Token)
+		response, err := authrpc.Auth.VerifyToken(c.Request.Context(), &authpb.VerifyTokenRequest{}, h.Token)
 
 		if err != nil {
 			status, response := helper.PrepareResponseFromgrpcError(err, &types.VerifyTokenValidationError{})
