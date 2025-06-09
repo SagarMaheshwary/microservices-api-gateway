@@ -15,6 +15,7 @@ var Conf *Config
 
 type Config struct {
 	HTTPServer *HTTPServer
+	App        *App
 	GRPCClient *GRPCClient
 	Jaeger     *Jaeger
 }
@@ -22,6 +23,10 @@ type Config struct {
 type HTTPServer struct {
 	Host string
 	Port int
+}
+
+type App struct {
+	Env string
 }
 
 type GRPCClient struct {
@@ -52,6 +57,9 @@ func Init() {
 		HTTPServer: &HTTPServer{
 			Host: getEnv("HTTP_HOST", "localhost"),
 			Port: getEnvInt("HTTP_PORT", 4000),
+		},
+		App: &App{
+			Env: getEnv("APP_ENV", "development"),
 		},
 		GRPCClient: &GRPCClient{
 			AuthenticationServiceURL: getEnv("GRPC_AUTHENTICATION_SERVICE_URL", "localhost:5001"),

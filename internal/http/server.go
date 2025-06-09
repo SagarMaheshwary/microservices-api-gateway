@@ -17,11 +17,21 @@ func Connect() {
 	c := config.Conf.HTTPServer
 	address := fmt.Sprintf("%v:%d", c.Host, c.Port)
 
-	r := gin.Default()
+	if config.Conf.App.Env == "development" {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
-	r.Use(otelgin.Middleware(constant.ServiceName))
-	r.Use(middleware.PrometheusMiddleware())
-	r.Use(middleware.CORSMiddleware()) //@TODO: should it be in code or reverse proxy?
+	r := gin.New()
+
+	r.Use(
+		gin.Recovery(),
+		middleware.ZerologMiddleware(),
+		otelgin.Middleware(constant.ServiceName),
+		middleware.PrometheusMiddleware(),
+		middleware.CORSMiddleware(), //@TODO: should it be in code or reverse proxy?
+	)
 
 	router.InitRoutes(r)
 
