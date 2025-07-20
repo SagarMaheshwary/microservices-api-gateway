@@ -13,7 +13,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
-func Connect() {
+func NewServer() *http.Server {
 	c := config.Conf.HTTPServer
 	address := fmt.Sprintf("%v:%d", c.Host, c.Port)
 
@@ -35,14 +35,20 @@ func Connect() {
 
 	router.InitRoutes(r)
 
-	s := &http.Server{
+	server := &http.Server{
 		Addr:    address,
 		Handler: r,
 	}
 
-	logger.Info("HTTP server started on %v", address)
+	return server
+}
 
-	if err := s.ListenAndServe(); err != nil {
-		logger.Error("HTTP server failed to start %v", err)
+func Serve(server *http.Server) error {
+	logger.Info("Starting HTTP server on %s", server.Addr)
+
+	if err := server.ListenAndServe(); err != nil {
+		return fmt.Errorf("HTTP server failed to start %v", err)
 	}
+
+	return nil
 }

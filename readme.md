@@ -9,6 +9,7 @@ API Gateway for the [Microservices](https://github.com/SagarMaheshwary/microserv
 - Gin framework - REST API
 - gRPC – Client implementations for Authentication, Upload, and Video Catalog services
 - Prometheus Client – Exports default and custom metrics for Prometheus server monitoring
+- Jaeger – Request tracing
 
 ### SETUP
 

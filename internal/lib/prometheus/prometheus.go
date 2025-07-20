@@ -36,7 +36,7 @@ var (
 	})
 )
 
-func Init() {
+func RegisterMetrics() {
 	prometheuslib.MustRegister(
 		TotalRequests,
 		ErrorCount,

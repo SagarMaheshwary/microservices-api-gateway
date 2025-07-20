@@ -36,15 +36,15 @@ func Health(c *gin.Context) {
 func getServicesHealthStatus(c *gin.Context) bool {
 	ctx := c.Request.Context()
 
-	if !authrpc.HealthCheck(ctx) {
+	if err := authrpc.HealthCheck(ctx); err != nil {
 		return false
 	}
 
-	if !videocatalogrpc.HealthCheck(ctx) {
+	if err := videocatalogrpc.HealthCheck(ctx); err != nil {
 		return false
 	}
 
-	if !uploadrpc.HealthCheck(ctx) {
+	if err := uploadrpc.HealthCheck(ctx); err != nil {
 		return false
 	}
 

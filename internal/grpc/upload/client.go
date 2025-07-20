@@ -2,6 +2,7 @@ package upload
 
 import (
 	"context"
+	"errors"
 
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/logger"
@@ -13,7 +14,7 @@ import (
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 )
 
-func Connect() {
+func InitClient(ctx context.Context) (*grpc.ClientConn, error) {
 	var opts []grpc.DialOption
 
 	opts = append(
@@ -27,10 +28,11 @@ func Connect() {
 
 	address := config.Conf.GRPCClient.UploadServiceURL
 
-	conn, err := grpc.Dial(address, opts...)
+	conn, err := grpc.NewClient(address, opts...)
 
 	if err != nil {
 		logger.Error("gRPC client failed to connect on %q: %v", address, err)
+		return nil, err
 	}
 
 	logger.Info("gRPC client connected on %q", address)
@@ -39,9 +41,17 @@ func Connect() {
 		client: uploadpb.NewUploadServiceClient(conn),
 		health: healthpb.NewHealthClient(conn),
 	}
+
+	if err := HealthCheck(ctx); err != nil {
+		return nil, err
+	}
+
+	logger.Info("Upload gRPC client connected on %q", address)
+
+	return conn, nil
 }
 
-func HealthCheck(ctx context.Context) bool {
+func HealthCheck(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
 	defer cancel()
 
@@ -49,15 +59,13 @@ func HealthCheck(ctx context.Context) bool {
 
 	if err != nil {
 		logger.Error("Upload gRPC health check failed! %v", err)
-
-		return false
+		return err
 	}
 
 	if response.Status == healthpb.HealthCheckResponse_NOT_SERVING {
-		logger.Error("Upload gRPC health check failed!")
-
-		return false
+		logger.Error("Upload gRPC health check failed")
+		return errors.New("Upload gRPC health check failed")
 	}
 
-	return true
+	return nil
 }
