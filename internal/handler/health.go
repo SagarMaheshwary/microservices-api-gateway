@@ -14,22 +14,17 @@ import (
 func Health(c *gin.Context) {
 	if !getServicesHealthStatus(c) {
 		prometheus.ServiceHealth.Set(0)
-
 		response := helper.PrepareResponse("Some services are not available!", gin.H{
 			"status": "degraded",
 		})
-
 		c.JSON(http.StatusServiceUnavailable, response)
-
 		return
 	}
 
 	prometheus.ServiceHealth.Set(1)
-
 	response := helper.PrepareResponse("All services are healthy!", gin.H{
 		"status": "healthy",
 	})
-
 	c.JSON(http.StatusOK, response)
 }
 

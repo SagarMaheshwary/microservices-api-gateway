@@ -11,9 +11,7 @@ import (
 func PrometheusMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
-
 		c.Next()
-
 		duration := time.Since(start).Seconds()
 
 		route := c.FullPath()

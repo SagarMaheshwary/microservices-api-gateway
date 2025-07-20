@@ -20,14 +20,11 @@ type uploadClient struct {
 
 func (u *uploadClient) CreatePresignedUrl(ctx context.Context, data *uploadpb.CreatePresignedUrlRequest) (*uploadpb.CreatePresignedUrlResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
-
 	defer cancel()
 
 	response, err := u.client.CreatePresignedUrl(ctx, data)
-
 	if err != nil {
 		logger.Error("gRPC uploadClient.CreatePresignedUrl failed %v", err)
-
 		return nil, err
 	}
 
@@ -35,18 +32,15 @@ func (u *uploadClient) CreatePresignedUrl(ctx context.Context, data *uploadpb.Cr
 }
 
 func (u *uploadClient) UploadedWebhook(ctx context.Context, data *uploadpb.UploadedWebhookRequest, userId string) (*uploadpb.UploadedWebhookResponse, error) {
-	ctxTimeout, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
-
+	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
 	defer cancel()
 
 	md := metadata.Pairs(constant.GRPCHeaderUserId, userId)
-	ctx = metadata.NewOutgoingContext(ctxTimeout, md)
+	ctx = metadata.NewOutgoingContext(ctx, md)
 
 	response, err := u.client.UploadedWebhook(ctx, data)
-
 	if err != nil {
 		logger.Error("gRPC uploadClient.CreatePresignedUrl failed %v", err)
-
 		return nil, err
 	}
 

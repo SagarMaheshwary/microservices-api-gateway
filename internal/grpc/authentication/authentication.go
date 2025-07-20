@@ -20,14 +20,11 @@ type authenticationClient struct {
 
 func (a *authenticationClient) Register(ctx context.Context, data *authpb.RegisterRequest) (*authpb.RegisterResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
-
 	defer cancel()
 
 	response, err := a.client.Register(ctx, data)
-
 	if err != nil {
 		logger.Error("gRPC authenticationClient.Register failed %v", err)
-
 		return nil, err
 	}
 
@@ -36,14 +33,11 @@ func (a *authenticationClient) Register(ctx context.Context, data *authpb.Regist
 
 func (a *authenticationClient) Login(ctx context.Context, data *authpb.LoginRequest) (*authpb.LoginResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
-
 	defer cancel()
 
 	response, err := a.client.Login(ctx, data)
-
 	if err != nil {
 		logger.Error("gRPC authenticationClient.Login failed %v", err)
-
 		return nil, err
 	}
 
@@ -51,18 +45,15 @@ func (a *authenticationClient) Login(ctx context.Context, data *authpb.LoginRequ
 }
 
 func (a *authenticationClient) VerifyToken(ctx context.Context, data *authpb.VerifyTokenRequest, token string) (*authpb.VerifyTokenResponse, error) {
-	ctxTimeout, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
-
+	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
 	defer cancel()
 
 	md := metadata.Pairs(constant.GRPCHeaderAuthorization, token)
-	ctx = metadata.NewOutgoingContext(ctxTimeout, md)
+	ctx = metadata.NewOutgoingContext(ctx, md)
 
 	response, err := a.client.VerifyToken(ctx, data)
-
 	if err != nil {
 		logger.Error("gRPC authenticationClient.VerifyToken failed %v", err)
-
 		return nil, err
 	}
 
@@ -70,18 +61,15 @@ func (a *authenticationClient) VerifyToken(ctx context.Context, data *authpb.Ver
 }
 
 func (a *authenticationClient) Logout(ctx context.Context, data *authpb.LogoutRequest, token string) (*authpb.LogoutResponse, error) {
-	ctxTimeout, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
-
+	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
 	defer cancel()
 
 	md := metadata.Pairs(constant.GRPCHeaderAuthorization, token)
-	ctx = metadata.NewOutgoingContext(ctxTimeout, md)
+	ctx = metadata.NewOutgoingContext(ctx, md)
 
 	response, err := a.client.Logout(ctx, data)
-
 	if err != nil {
 		logger.Error("gRPC authenticationClient.Logout failed %v", err)
-
 		return nil, err
 	}
 

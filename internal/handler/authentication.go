@@ -13,11 +13,9 @@ import (
 func Register(c *gin.Context) {
 	in := new(types.RegisterInput)
 	ve := new(types.RegisterValidationError)
-
 	if err := c.ShouldBindJSON(&in); err != nil {
 		response := helper.PrepareResponseFromValidationError(err, ve)
 		c.JSON(http.StatusBadRequest, response)
-
 		return
 	}
 
@@ -26,11 +24,9 @@ func Register(c *gin.Context) {
 		Email:    in.Email,
 		Password: in.Password,
 	})
-
 	if err != nil {
-		status, response := helper.PrepareResponseFromgrpcError(err, ve)
+		status, response := helper.PrepareResponseFromGrpcError(err, ve)
 		c.JSON(status, response)
-
 		return
 	}
 
@@ -40,11 +36,9 @@ func Register(c *gin.Context) {
 func Login(c *gin.Context) {
 	in := new(types.LoginInput)
 	ve := new(types.LoginValidationError)
-
 	if err := c.ShouldBind(&in); err != nil {
 		response := helper.PrepareResponseFromValidationError(err, ve)
 		c.JSON(http.StatusBadRequest, response)
-
 		return
 	}
 
@@ -52,11 +46,9 @@ func Login(c *gin.Context) {
 		Email:    in.Email,
 		Password: in.Password,
 	})
-
 	if err != nil {
-		status, response := helper.PrepareResponseFromgrpcError(err, ve)
+		status, response := helper.PrepareResponseFromGrpcError(err, ve)
 		c.JSON(status, response)
-
 		return
 	}
 
@@ -65,15 +57,12 @@ func Login(c *gin.Context) {
 
 func Profile(c *gin.Context) {
 	h := new(types.AuthorizationHeader)
-
 	c.ShouldBindHeader(&h)
 
 	response, err := authrpc.Auth.VerifyToken(c.Request.Context(), &authpb.VerifyTokenRequest{}, h.Token)
-
 	if err != nil {
-		status, response := helper.PrepareResponseFromgrpcError(err, &types.VerifyTokenValidationError{})
+		status, response := helper.PrepareResponseFromGrpcError(err, &types.VerifyTokenValidationError{})
 		c.JSON(status, response)
-
 		return
 	}
 
@@ -82,15 +71,12 @@ func Profile(c *gin.Context) {
 
 func Logout(c *gin.Context) {
 	h := new(types.AuthorizationHeader)
-
 	c.ShouldBindHeader(&h)
 
 	response, err := authrpc.Auth.Logout(c.Request.Context(), &authpb.LogoutRequest{}, h.Token)
-
 	if err != nil {
-		status, response := helper.PrepareResponseFromgrpcError(err, &types.LogoutValidationError{})
+		status, response := helper.PrepareResponseFromGrpcError(err, &types.LogoutValidationError{})
 		c.JSON(status, response)
-
 		return
 	}
 

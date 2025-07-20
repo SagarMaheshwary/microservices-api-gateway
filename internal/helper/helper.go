@@ -67,10 +67,10 @@ func ValidationErrorByTag(tag string, field string) string {
 	return ""
 }
 
-func PrepareResponseFromgrpcError(err error, obj any) (int, gin.H) {
+func PrepareResponseFromGrpcError(err error, obj any) (int, gin.H) {
 	e, _ := status.FromError(err)
 
-	status := GRPCTohttpCode(e.Code())
+	status := GRPCToHttpCode(e.Code())
 	data := gin.H{}
 
 	if status == http.StatusBadRequest {
@@ -83,7 +83,7 @@ func PrepareResponseFromgrpcError(err error, obj any) (int, gin.H) {
 	return status, response
 }
 
-func GRPCTohttpCode(code codes.Code) int {
+func GRPCToHttpCode(code codes.Code) int {
 	switch code {
 	case codes.OK:
 		return http.StatusOK
