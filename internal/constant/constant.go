@@ -23,3 +23,5 @@ const (
 )
 
 const ServiceName = "API Gateway"
+
+const ExitFailure = 1

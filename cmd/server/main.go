@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
 	authrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
 	uploadrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/upload"
 	videocatalogrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/video_catalog"
@@ -69,7 +70,7 @@ func mustInitClient(name string, initFunc func(ctx context.Context) (*grpc.Clien
 	conn, err := initFunc(context.Background())
 	if err != nil {
 		logger.Error("Failed to init %s client: %v", name, err)
-		os.Exit(1)
+		os.Exit(constant.ExitFailure)
 	}
 	return conn
 }
