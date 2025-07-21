@@ -9,11 +9,11 @@ API Gateway for the [Microservices](https://github.com/SagarMaheshwary/microserv
 - Gin framework - REST API
 - gRPC – Client implementations for Authentication, Upload, and Video Catalog services
 - Prometheus Client – Exports default and custom metrics for Prometheus server monitoring
-- Jaeger – Request tracing
+- Jaeger – Distributed request tracing
 
 ### SETUP
 
-Follow the instructions in the [README](https://github.com/SagarMaheshwary/microservices?tab=readme-ov-file#setup) of the main microservices repository to run this service along with others using Docker Compose.
+Follow the instructions in the [README](https://github.com/SagarMaheshwary/microservices?tab=readme-ov-file#setup) of the main microservices repository to run this service along with others using Docker Compose or Kubernetes (KIND).
 
 ### APIs
 

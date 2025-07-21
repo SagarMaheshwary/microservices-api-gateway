@@ -33,7 +33,7 @@ type GRPCClient struct {
 	AuthenticationServiceURL string
 	UploadServiceURL         string
 	VideoCatalogServiceURL   string
-	Timeout                  time.Duration
+	TimeoutSeconds           time.Duration
 }
 
 type Jaeger struct {
@@ -65,7 +65,7 @@ func Init() {
 			AuthenticationServiceURL: getEnv("GRPC_AUTHENTICATION_SERVICE_URL", "localhost:5001"),
 			UploadServiceURL:         getEnv("GRPC_UPLOAD_SERVICE_URL", "localhost:5002"),
 			VideoCatalogServiceURL:   getEnv("GRPC_VIDEO_CATALOG_SERVICE_URL", "localhost:5002"),
-			Timeout:                  getEnvDuration("GRPC_CLIENT_TIMEOUT_SECONDS", 5),
+			TimeoutSeconds:           getEnvDurationSeconds("GRPC_CLIENT_TIMEOUT_SECONDS", 5),
 		},
 		Jaeger: &Jaeger{
 			URL: getEnv("JAEGER_URL", "localhost:4318"),
@@ -89,7 +89,7 @@ func getEnvInt(key string, defaultVal int) int {
 	return defaultVal
 }
 
-func getEnvDuration(key string, defaultVal time.Duration) time.Duration {
+func getEnvDurationSeconds(key string, defaultVal time.Duration) time.Duration {
 	if val, err := strconv.Atoi(os.Getenv(key)); err == nil {
 		return time.Duration(val) * time.Second
 	}

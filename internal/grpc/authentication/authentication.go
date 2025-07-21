@@ -19,7 +19,7 @@ type authenticationClient struct {
 }
 
 func (a *authenticationClient) Register(ctx context.Context, data *authpb.RegisterRequest) (*authpb.RegisterResponse, error) {
-	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.TimeoutSeconds)
 	defer cancel()
 
 	response, err := a.client.Register(ctx, data)
@@ -32,7 +32,7 @@ func (a *authenticationClient) Register(ctx context.Context, data *authpb.Regist
 }
 
 func (a *authenticationClient) Login(ctx context.Context, data *authpb.LoginRequest) (*authpb.LoginResponse, error) {
-	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.TimeoutSeconds)
 	defer cancel()
 
 	response, err := a.client.Login(ctx, data)
@@ -45,7 +45,7 @@ func (a *authenticationClient) Login(ctx context.Context, data *authpb.LoginRequ
 }
 
 func (a *authenticationClient) VerifyToken(ctx context.Context, data *authpb.VerifyTokenRequest, token string) (*authpb.VerifyTokenResponse, error) {
-	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.TimeoutSeconds)
 	defer cancel()
 
 	md := metadata.Pairs(constant.GRPCHeaderAuthorization, token)
@@ -61,7 +61,7 @@ func (a *authenticationClient) VerifyToken(ctx context.Context, data *authpb.Ver
 }
 
 func (a *authenticationClient) Logout(ctx context.Context, data *authpb.LogoutRequest, token string) (*authpb.LogoutResponse, error) {
-	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.TimeoutSeconds)
 	defer cancel()
 
 	md := metadata.Pairs(constant.GRPCHeaderAuthorization, token)

@@ -72,5 +72,6 @@ func mustInitClient(name string, initFunc func(ctx context.Context) (*grpc.Clien
 		logger.Error("Failed to init %s client: %v", name, err)
 		os.Exit(constant.ExitFailure)
 	}
+
 	return conn
 }

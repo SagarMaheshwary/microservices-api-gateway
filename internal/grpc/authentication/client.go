@@ -52,7 +52,7 @@ func InitClient(ctx context.Context) (*grpc.ClientConn, error) {
 }
 
 func HealthCheck(ctx context.Context) error {
-	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, config.Conf.GRPCClient.TimeoutSeconds)
 	defer cancel()
 
 	response, err := Auth.health.Check(ctx, &healthpb.HealthCheckRequest{})
