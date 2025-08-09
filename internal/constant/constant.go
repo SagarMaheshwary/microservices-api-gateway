@@ -8,6 +8,7 @@ const (
 	MessageUnauthorized        = "Unauthorized"
 	MessageForbidden           = "Forbidden"
 	MessageNotFound            = "Resource Not Found"
+	MessageConflict            = "Conflict"
 	MessageInternalServerError = "Internal Server Error"
 	MessageServiceUnavailable  = "Service Unavailable"
 )

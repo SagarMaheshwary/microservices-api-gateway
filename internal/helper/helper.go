@@ -67,20 +67,20 @@ func ValidationErrorByTag(tag string, field string) string {
 	return ""
 }
 
-func PrepareResponseFromGrpcError(err error, obj any) (int, gin.H) {
+func PrepareResponseFromGRPCError(err error, obj any) (int, gin.H) {
 	e, _ := status.FromError(err)
 
-	status := GRPCToHttpCode(e.Code())
+	s := GRPCToHttpCode(e.Code())
 	data := gin.H{}
 
-	if status == http.StatusBadRequest {
+	if s == http.StatusBadRequest {
 		json.Unmarshal([]byte(e.Message()), &obj)
 		data["errors"] = obj
 	}
 
-	response := PrepareResponse(HTTPCodeToMessage(status), data)
+	res := PrepareResponse(HTTPCodeToMessage(s), data)
 
-	return status, response
+	return s, res
 }
 
 func GRPCToHttpCode(code codes.Code) int {
@@ -95,6 +95,8 @@ func GRPCToHttpCode(code codes.Code) int {
 		return http.StatusForbidden
 	case codes.NotFound:
 		return http.StatusNotFound
+	case codes.AlreadyExists:
+		return http.StatusConflict
 	case codes.Internal:
 		return http.StatusInternalServerError
 	case codes.Unavailable:
@@ -116,6 +118,8 @@ func HTTPCodeToMessage(code int) string {
 		return constant.MessageForbidden
 	case http.StatusNotFound:
 		return constant.MessageNotFound
+	case http.StatusConflict:
+		return constant.MessageConflict
 	case http.StatusInternalServerError:
 		return constant.MessageInternalServerError
 	case http.StatusServiceUnavailable:
@@ -123,4 +127,8 @@ func HTTPCodeToMessage(code int) string {
 	default:
 		return constant.MessageInternalServerError
 	}
+}
+
+func StringPTR(s string) *string {
+	return &s
 }

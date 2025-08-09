@@ -11,23 +11,24 @@ import (
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/types"
 )
 
-func VerifyTokenMiddleware() gin.HandlerFunc {
+func VerifyTokenMiddleware(authClient authrpc.AuthenticationService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		h := new(types.AuthorizationHeader)
+		var h types.AuthorizationHeader
 		if err := c.ShouldBindHeader(&h); err != nil {
 			response := helper.PrepareResponse(constant.MessageUnauthorized, gin.H{})
 			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
 			return
 		}
 
-		response, err := authrpc.Auth.VerifyToken(c.Request.Context(), &authpb.VerifyTokenRequest{}, h.Token)
+		response, err := authClient.VerifyToken(c.Request.Context(), &authpb.VerifyTokenRequest{}, h.Token)
 		if err != nil {
-			status, response := helper.PrepareResponseFromGrpcError(err, &types.VerifyTokenValidationError{})
+			status, response := helper.PrepareResponseFromGRPCError(err, &types.VerifyTokenValidationError{})
 			c.AbortWithStatusJSON(status, response)
 			return
 		}
 
 		c.Set(constant.AuthUser, response.Data.User)
+		c.Set(constant.GRPCHeaderAuthorization, h)
 		c.Next()
 	}
 }

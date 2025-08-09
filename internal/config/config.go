@@ -11,8 +11,6 @@ import (
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/logger"
 )
 
-var Conf *Config
-
 type Config struct {
 	HTTPServer *HTTPServer
 	App        *App
@@ -33,14 +31,14 @@ type GRPCClient struct {
 	AuthenticationServiceURL string
 	UploadServiceURL         string
 	VideoCatalogServiceURL   string
-	TimeoutSeconds           time.Duration
+	Timeout                  time.Duration
 }
 
 type Jaeger struct {
 	URL string
 }
 
-func Init() {
+func NewConfig() *Config {
 	envPath := path.Join(helper.GetRootDir(), "..", ".env")
 
 	if _, err := os.Stat(envPath); err == nil {
@@ -53,7 +51,7 @@ func Init() {
 		logger.Info(".env file not found, using system environment variables")
 	}
 
-	Conf = &Config{
+	return &Config{
 		HTTPServer: &HTTPServer{
 			Host: getEnv("HTTP_HOST", "localhost"),
 			Port: getEnvInt("HTTP_PORT", 4000),
@@ -62,13 +60,13 @@ func Init() {
 			Env: getEnv("APP_ENV", "development"),
 		},
 		GRPCClient: &GRPCClient{
-			AuthenticationServiceURL: getEnv("GRPC_AUTHENTICATION_SERVICE_URL", "localhost:5001"),
-			UploadServiceURL:         getEnv("GRPC_UPLOAD_SERVICE_URL", "localhost:5002"),
-			VideoCatalogServiceURL:   getEnv("GRPC_VIDEO_CATALOG_SERVICE_URL", "localhost:5002"),
-			TimeoutSeconds:           getEnvDurationSeconds("GRPC_CLIENT_TIMEOUT_SECONDS", 5),
+			AuthenticationServiceURL: getEnv("GRPC_AUTHENTICATION_SERVICE_URL", "authentication-service:5001"),
+			UploadServiceURL:         getEnv("GRPC_UPLOAD_SERVICE_URL", "upload-service:5002"),
+			VideoCatalogServiceURL:   getEnv("GRPC_VIDEO_CATALOG_SERVICE_URL", "video-catalog-service:5002"),
+			Timeout:                  getEnvDurationSeconds("GRPC_CLIENT_TIMEOUT_SECONDS", 5),
 		},
 		Jaeger: &Jaeger{
-			URL: getEnv("JAEGER_URL", "localhost:4318"),
+			URL: getEnv("JAEGER_URL", "jaeger:4318"),
 		},
 	}
 }

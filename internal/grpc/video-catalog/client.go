@@ -1,11 +1,11 @@
-package upload
+package videocatalog
 
 import (
 	"context"
 
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/logger"
-	uploadpb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/upload/upload"
+	videocatalogpb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/video_catalog"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
@@ -15,7 +15,7 @@ import (
 
 type DialFunc func(target string, opts ...grpc.DialOption) (*grpc.ClientConn, error)
 
-type ClientFactory func(c uploadpb.UploadServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) UploadService
+type ClientFactory func(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) VideoCatalogService
 
 type InitClientOptions struct {
 	Config          *config.GRPCClient
@@ -29,11 +29,11 @@ func defaultDialer(target string, opts ...grpc.DialOption) (*grpc.ClientConn, er
 	return grpc.NewClient(target, opts...)
 }
 
-func defaultFactory(c uploadpb.UploadServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) UploadService {
-	return NewUploadClient(c, h, cfg)
+func defaultFactory(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) VideoCatalogService {
+	return NewVideoCatalogClient(c, h, cfg)
 }
 
-func NewClient(ctx context.Context, opt *InitClientOptions) (UploadService, *grpc.ClientConn, error) {
+func NewClient(ctx context.Context, opt *InitClientOptions) (VideoCatalogService, *grpc.ClientConn, error) {
 	if opt == nil {
 		opt = &InitClientOptions{}
 	}
@@ -55,14 +55,14 @@ func NewClient(ctx context.Context, opt *InitClientOptions) (UploadService, *grp
 
 	conn, err := opt.Dial(opt.Config.UploadServiceURL, opt.DialOptions...)
 	if err != nil {
-		logger.Error("Upload gRPC client failed to connect on %q: %v", opt.Config.UploadServiceURL, err)
+		logger.Error("VideoCatalog gRPC client failed to connect on %q: %v", opt.Config.UploadServiceURL, err)
 		return nil, nil, err
 	}
 
-	logger.Info("Upload gRPC client connected on %q", opt.Config.UploadServiceURL)
+	logger.Info("VideoCatalog gRPC client connected on %q", opt.Config.UploadServiceURL)
 
 	uploadClient := opt.Factory(
-		uploadpb.NewUploadServiceClient(conn),
+		videocatalogpb.NewVideoCatalogServiceClient(conn),
 		healthpb.NewHealthClient(conn),
 		opt.Config,
 	)
@@ -73,6 +73,6 @@ func NewClient(ctx context.Context, opt *InitClientOptions) (UploadService, *grp
 		}
 	}
 
-	logger.Info("Upload gRPC client ready on %q", opt.Config.UploadServiceURL)
+	logger.Info("VideoCatalog gRPC client ready on %q", opt.Config.UploadServiceURL)
 	return uploadClient, conn, nil
 }

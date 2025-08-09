@@ -10,36 +10,57 @@ import (
 
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/config"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
-	authrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
-	uploadrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/upload"
-	videocatalogrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/video_catalog"
+	auth "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
+	upload "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/upload"
+	videocatalog "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/video-catalog"
 	httpserver "github.com/sagarmaheshwary/microservices-api-gateway/internal/http"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/jaeger"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/logger"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/lib/prometheus"
-	"google.golang.org/grpc"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/types"
 )
 
 func main() {
 	logger.Init()
-	config.Init()
+	cfg := config.NewConfig()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	shutdownJaeger := jaeger.Init(ctx)
+	shutdownJaeger := jaeger.Init(ctx, cfg.Jaeger.URL)
 	prometheus.RegisterMetrics()
 
-	authConn := mustInitClient("Authentication", authrpc.InitClient)
+	authClient, authConn, err := auth.NewClient(ctx, &auth.InitClientOptions{Config: cfg.GRPCClient})
+	if err != nil {
+		logger.Error("Failed to connect to auth client: %v", err)
+		os.Exit(constant.ExitFailure)
+	}
 	defer authConn.Close()
 
-	uploadConn := mustInitClient("Upload", uploadrpc.InitClient)
+	uploadClient, uploadConn, err := upload.NewClient(ctx, &upload.InitClientOptions{Config: cfg.GRPCClient})
+	if err != nil {
+		logger.Error("Failed to connect to upload client: %v", err)
+		os.Exit(constant.ExitFailure)
+	}
 	defer uploadConn.Close()
 
-	videocatalogConn := mustInitClient("VideoCatalog", videocatalogrpc.InitClient)
-	defer videocatalogConn.Close()
+	videoCatalogClient, videoCatalogConn, err := videocatalog.NewClient(ctx, &videocatalog.InitClientOptions{Config: cfg.GRPCClient})
+	if err != nil {
+		logger.Error("Failed to connect to upload client: %v", err)
+		os.Exit(constant.ExitFailure)
+	}
+	defer videoCatalogConn.Close()
 
-	httpServer := httpserver.NewServer()
+	httpServer := httpserver.NewServer(
+		cfg.HTTPServer,
+		cfg.App.Env,
+		types.GRPCClients{
+			AuthClient:         authClient,
+			UploadClient:       uploadClient,
+			VideoCatalogClient: videoCatalogClient,
+		},
+	)
+
 	go func() {
 		if err := httpserver.Serve(httpServer); err != nil && err != http.ErrServerClosed {
 			logger.Error("HTTP server error: %v", err)
@@ -64,14 +85,4 @@ func main() {
 	}
 
 	logger.Info("Shutdown complete")
-}
-
-func mustInitClient(name string, initFunc func(ctx context.Context) (*grpc.ClientConn, error)) *grpc.ClientConn {
-	conn, err := initFunc(context.Background())
-	if err != nil {
-		logger.Error("Failed to init %s client: %v", name, err)
-		os.Exit(constant.ExitFailure)
-	}
-
-	return conn
 }
