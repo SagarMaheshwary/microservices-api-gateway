@@ -17,12 +17,6 @@ import (
 )
 
 func TestUploadClient_CreatePresignedUrl(t *testing.T) {
-	mockClient := new(MockUploadServiceClient)
-	mockHealth := new(MockHealthClient)
-
-	cfg := &config.GRPCClient{Timeout: 2 * time.Second}
-	c := upload.NewUploadClient(mockClient, mockHealth, cfg)
-
 	req := &uploadpb.CreatePresignedUrlRequest{}
 	res := &uploadpb.CreatePresignedUrlResponse{
 		Message: constant.MessageOK,
@@ -33,51 +27,109 @@ func TestUploadClient_CreatePresignedUrl(t *testing.T) {
 			VideoUrl:     "https://example.com/presigned",
 		},
 	}
+	cfg := &config.GRPCClient{Timeout: 2 * time.Second}
 
-	// Success case
-	mockClient.On("CreatePresignedUrl", mock.Anything, req).Return(res, nil)
-	got, err := c.CreatePresignedUrl(context.Background(), req)
-	assert.NoError(t, err)
-	assert.Equal(t, res, got)
+	tests := []struct {
+		name       string
+		mockReturn *uploadpb.CreatePresignedUrlResponse
+		mockErr    error
+		expectErr  bool
+	}{
+		{
+			name:       "success",
+			mockReturn: res,
+			mockErr:    nil,
+			expectErr:  false,
+		},
+		{
+			name:       "generic failure",
+			mockReturn: nil,
+			mockErr:    errors.New("grpc failure"),
+			expectErr:  true,
+		},
+	}
 
-	// Failure case
-	mockClient.On("CreatePresignedUrl", mock.Anything, req).Return(nil, errors.New("grpc failure"))
-	got, err = c.CreatePresignedUrl(context.Background(), req)
-	assert.NoError(t, err)
-	assert.Equal(t, res, got)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockClient := new(MockUploadServiceClient)
+			mockHealth := new(MockHealthClient)
 
-	mockClient.AssertExpectations(t)
+			mockClient.On("CreatePresignedUrl", mock.Anything, req).
+				Return(tt.mockReturn, tt.mockErr).
+				Once()
+
+			c := upload.NewUploadClient(mockClient, mockHealth, cfg)
+
+			got, err := c.CreatePresignedUrl(context.Background(), req)
+
+			if tt.expectErr {
+				require.Error(t, err)
+				assert.Nil(t, got)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, tt.mockReturn, got)
+			}
+
+			mockClient.AssertExpectations(t)
+		})
+	}
 }
 
 func TestUploadClient_UploadedWebhook(t *testing.T) {
-	mockUpload := new(MockUploadServiceClient)
-	mockHealth := new(MockHealthClient)
-
-	cfg := &config.GRPCClient{Timeout: 2 * time.Second}
-	client := upload.NewUploadClient(mockUpload, mockHealth, cfg)
-
 	req := &uploadpb.UploadedWebhookRequest{
 		VideoId:     "1",
 		ThumbnailId: "1",
 		Title:       "title",
 		Description: "description",
 	}
-	resp := &uploadpb.UploadedWebhookResponse{Message: constant.MessageOK, Data: &uploadpb.UploadedWebhookResponseData{}}
-	userID := "user-1"
+	res := &uploadpb.UploadedWebhookResponse{Message: constant.MessageOK, Data: &uploadpb.UploadedWebhookResponseData{}}
 
-	// Success case
-	mockUpload.On("UploadedWebhook", mock.Anything, req).Return(resp, nil).Once()
-	got, err := client.UploadedWebhook(context.Background(), req, userID)
-	require.NoError(t, err)
-	assert.Equal(t, resp, got)
+	cfg := &config.GRPCClient{Timeout: 2 * time.Second}
 
-	// Failure case
-	mockUpload.On("UploadedWebhook", mock.Anything, req).Return(nil, errors.New("grpc failure")).Once()
-	got, err = client.UploadedWebhook(context.Background(), req, userID)
-	require.Error(t, err)
-	assert.Nil(t, got)
+	tests := []struct {
+		name       string
+		mockReturn *uploadpb.UploadedWebhookResponse
+		mockErr    error
+		expectErr  bool
+	}{
+		{
+			name:       "success",
+			mockReturn: res,
+			mockErr:    nil,
+			expectErr:  false,
+		},
+		{
+			name:       "generic failure",
+			mockReturn: nil,
+			mockErr:    errors.New("grpc failure"),
+			expectErr:  true,
+		},
+	}
 
-	mockUpload.AssertExpectations(t)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockClient := new(MockUploadServiceClient)
+			mockHealth := new(MockHealthClient)
+
+			mockClient.On("UploadedWebhook", mock.Anything, req).
+				Return(tt.mockReturn, tt.mockErr).
+				Once()
+
+			c := upload.NewUploadClient(mockClient, mockHealth, cfg)
+
+			got, err := c.UploadedWebhook(context.Background(), req, "user-id")
+
+			if tt.expectErr {
+				require.Error(t, err)
+				assert.Nil(t, got)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, tt.mockReturn, got)
+			}
+
+			mockClient.AssertExpectations(t)
+		})
+	}
 }
 
 func TestUploadClient_Health(t *testing.T) {

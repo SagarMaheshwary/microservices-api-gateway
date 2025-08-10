@@ -14,77 +14,88 @@ import (
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 )
 
-func TestInitClient_Success(t *testing.T) {
-	mockClient := new(MockVideoCatalogServiceClient)
-	mockHealth := new(MockHealthClient)
-
-	opt := &videocatalog.InitClientOptions{
-		Config: &config.GRPCClient{UploadServiceURL: "fake-url"},
-		Dial: func(target string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
-			return &grpc.ClientConn{}, nil
-		},
-		Factory: func(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) videocatalog.VideoCatalogService {
-			return videocatalog.NewVideoCatalogClient(mockClient, mockHealth, cfg)
-		},
-	}
-
-	mockHealth.On("Check", mock.Anything, mock.Anything, mock.Anything).Return(
-		&healthpb.HealthCheckResponse{Status: healthpb.HealthCheckResponse_SERVING}, nil,
-	)
-
-	svc, conn, err := videocatalog.NewClient(context.Background(), opt)
-
-	assert.NoError(t, err)
-	assert.NotNil(t, svc)
-	assert.NotNil(t, conn)
-
-	mockHealth.AssertExpectations(t)
-}
-
-func TestInitClient_HealthFails(t *testing.T) {
-	mockClient := new(MockVideoCatalogServiceClient)
-	mockHealth := new(MockHealthClient)
-
-	opt := &videocatalog.InitClientOptions{
-		Config: &config.GRPCClient{UploadServiceURL: "fake-url"},
-		Dial: func(target string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
-			return &grpc.ClientConn{}, nil
-		},
-		Factory: func(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) videocatalog.VideoCatalogService {
-			return videocatalog.NewVideoCatalogClient(mockClient, mockHealth, cfg)
-		},
-	}
-
-	mockHealth.On("Check", mock.Anything, mock.Anything, mock.Anything).Return(
-		nil, errors.New("health failed"),
-	)
-
-	svc, conn, err := videocatalog.NewClient(context.Background(), opt)
-
-	assert.Error(t, err)
-	assert.Nil(t, svc)
-	assert.Nil(t, conn)
-
-	mockHealth.AssertExpectations(t)
-}
-
-func TestInitClient_DialFail(t *testing.T) {
+func TestInitClient(t *testing.T) {
 	dialErr := errors.New("dial failed")
+	healthErr := errors.New("health failed")
 
-	opt := &videocatalog.InitClientOptions{
-		Config: &config.GRPCClient{UploadServiceURL: "fake-url"},
-		Dial: func(target string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
-			return nil, dialErr
+	tests := []struct {
+		name       string
+		dialFunc   func(target string, opts ...grpc.DialOption) (*grpc.ClientConn, error)
+		mockHealth func(h *MockHealthClient)
+		expectErr  error
+		expectNil  bool
+	}{
+		{
+			name: "success",
+			dialFunc: func(target string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
+				return &grpc.ClientConn{}, nil
+			},
+			mockHealth: func(h *MockHealthClient) {
+				h.On("Check", mock.Anything, mock.Anything, mock.Anything).
+					Return(&healthpb.HealthCheckResponse{
+						Status: healthpb.HealthCheckResponse_SERVING,
+					}, nil)
+			},
+			expectErr: nil,
+			expectNil: false,
 		},
-		Factory: func(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) videocatalog.VideoCatalogService {
-			t.Fatal("Factory should not be called when dial fails")
-			return nil
+		{
+			name: "health fails",
+			dialFunc: func(target string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
+				return &grpc.ClientConn{}, nil
+			},
+			mockHealth: func(h *MockHealthClient) {
+				h.On("Check", mock.Anything, mock.Anything, mock.Anything).
+					Return(nil, healthErr)
+			},
+			expectErr: healthErr,
+			expectNil: true,
+		},
+		{
+			name: "dial fails",
+			dialFunc: func(target string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
+				return nil, dialErr
+			},
+			mockHealth: nil, // should never be called
+			expectErr:  dialErr,
+			expectNil:  true,
 		},
 	}
 
-	svc, conn, err := videocatalog.NewClient(context.Background(), opt)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockClient := new(MockVideoCatalogServiceClient)
+			mockHealth := new(MockHealthClient)
 
-	assert.EqualError(t, err, dialErr.Error())
-	assert.Nil(t, svc)
-	assert.Nil(t, conn)
+			opt := &videocatalog.InitClientOptions{
+				Config: &config.GRPCClient{UploadServiceURL: "fake-url"},
+				Dial:   tt.dialFunc,
+				Factory: func(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) videocatalog.VideoCatalogService {
+					return videocatalog.NewVideoCatalogClient(mockClient, mockHealth, cfg)
+				},
+			}
+
+			if tt.mockHealth != nil {
+				tt.mockHealth(mockHealth)
+			}
+
+			svc, conn, err := videocatalog.NewClient(context.Background(), opt)
+
+			if tt.expectErr != nil {
+				assert.EqualError(t, err, tt.expectErr.Error())
+			} else {
+				assert.NoError(t, err)
+			}
+
+			if tt.expectNil {
+				assert.Nil(t, svc)
+				assert.Nil(t, conn)
+			} else {
+				assert.NotNil(t, svc)
+				assert.NotNil(t, conn)
+			}
+
+			mockHealth.AssertExpectations(t)
+		})
+	}
 }
