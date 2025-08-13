@@ -30,23 +30,23 @@ func main() {
 	shutdownJaeger := jaeger.Init(ctx, cfg.Jaeger.URL)
 	prometheus.RegisterMetrics()
 
-	authClient, authConn, err := auth.NewClient(ctx, &auth.InitClientOptions{Config: cfg.GRPCClient})
+	authClient, authConn, err := auth.NewClient(ctx, &auth.InitClientOptions{Config: cfg.GRPCAuthenticationClient})
 	if err != nil {
 		logger.Error("Failed to connect to auth client: %v", err)
 		os.Exit(constant.ExitFailure)
 	}
 	defer authConn.Close()
 
-	uploadClient, uploadConn, err := upload.NewClient(ctx, &upload.InitClientOptions{Config: cfg.GRPCClient})
+	uploadClient, uploadConn, err := upload.NewClient(ctx, &upload.InitClientOptions{Config: cfg.GRPCUploadClient})
 	if err != nil {
 		logger.Error("Failed to connect to upload client: %v", err)
 		os.Exit(constant.ExitFailure)
 	}
 	defer uploadConn.Close()
 
-	videoCatalogClient, videoCatalogConn, err := videocatalog.NewClient(ctx, &videocatalog.InitClientOptions{Config: cfg.GRPCClient})
+	videoCatalogClient, videoCatalogConn, err := videocatalog.NewClient(ctx, &videocatalog.InitClientOptions{Config: cfg.GRPCVideoCatalogClient})
 	if err != nil {
-		logger.Error("Failed to connect to upload client: %v", err)
+		logger.Error("Failed to connect to video catalog client: %v", err)
 		os.Exit(constant.ExitFailure)
 	}
 	defer videoCatalogConn.Close()
@@ -62,7 +62,7 @@ func main() {
 	)
 
 	go func() {
-		if err := httpserver.Serve(httpServer); err != nil && err != http.ErrServerClosed {
+		if err := httpserver.Serve(httpServer, httpServer.ListenAndServe); err != nil && err != http.ErrServerClosed {
 			logger.Error("HTTP server error: %v", err)
 			stop()
 		}

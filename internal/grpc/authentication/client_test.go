@@ -68,9 +68,9 @@ func TestInitClient(t *testing.T) {
 			mockHealth := new(MockHealthClient)
 
 			opt := &auth.InitClientOptions{
-				Config: &config.GRPCClient{UploadServiceURL: "fake-url"},
+				Config: &config.GRPCAuthenticationClient{URL: "fake-url"},
 				Dial:   tt.dialFunc,
-				Factory: func(c authpb.AuthenticationServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) auth.AuthenticationService {
+				Factory: func(c authpb.AuthenticationServiceClient, h healthpb.HealthClient, cfg *config.GRPCAuthenticationClient) auth.AuthenticationService {
 					return auth.NewAuthenticationClient(mockClient, mockHealth, cfg)
 				},
 			}

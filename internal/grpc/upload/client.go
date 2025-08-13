@@ -15,10 +15,10 @@ import (
 
 type DialFunc func(target string, opts ...grpc.DialOption) (*grpc.ClientConn, error)
 
-type ClientFactory func(c uploadpb.UploadServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) UploadService
+type ClientFactory func(c uploadpb.UploadServiceClient, h healthpb.HealthClient, cfg *config.GRPCUploadClient) UploadService
 
 type InitClientOptions struct {
-	Config          *config.GRPCClient
+	Config          *config.GRPCUploadClient
 	Dial            DialFunc
 	Factory         ClientFactory
 	DialOptions     []grpc.DialOption
@@ -29,7 +29,7 @@ func defaultDialer(target string, opts ...grpc.DialOption) (*grpc.ClientConn, er
 	return grpc.NewClient(target, opts...)
 }
 
-func defaultFactory(c uploadpb.UploadServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) UploadService {
+func defaultFactory(c uploadpb.UploadServiceClient, h healthpb.HealthClient, cfg *config.GRPCUploadClient) UploadService {
 	return NewUploadClient(c, h, cfg)
 }
 
@@ -53,13 +53,13 @@ func NewClient(ctx context.Context, opt *InitClientOptions) (UploadService, *grp
 		}
 	}
 
-	conn, err := opt.Dial(opt.Config.UploadServiceURL, opt.DialOptions...)
+	conn, err := opt.Dial(opt.Config.URL, opt.DialOptions...)
 	if err != nil {
-		logger.Error("Upload gRPC client failed to connect on %q: %v", opt.Config.UploadServiceURL, err)
+		logger.Error("Upload gRPC client failed to connect on %q: %v", opt.Config.URL, err)
 		return nil, nil, err
 	}
 
-	logger.Info("Upload gRPC client connected on %q", opt.Config.UploadServiceURL)
+	logger.Info("Upload gRPC client connected on %q", opt.Config.URL)
 
 	uploadClient := opt.Factory(
 		uploadpb.NewUploadServiceClient(conn),
@@ -73,6 +73,6 @@ func NewClient(ctx context.Context, opt *InitClientOptions) (UploadService, *grp
 		}
 	}
 
-	logger.Info("Upload gRPC client ready on %q", opt.Config.UploadServiceURL)
+	logger.Info("Upload gRPC client ready on %q", opt.Config.URL)
 	return uploadClient, conn, nil
 }

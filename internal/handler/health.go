@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
 	authrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
 	uploadrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/upload"
 	videocatalogrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/video-catalog"
@@ -27,23 +28,23 @@ func NewHealthHandler(clients types.GRPCClients) *HealthHandler {
 }
 
 func (h *HealthHandler) CheckAll(c *gin.Context) {
-	if !getServicesHealthStatus(c, h) {
+	if !servicesHealthStatus(c, h) {
 		prometheus.ServiceHealth.Set(0)
-		response := helper.PrepareResponse("Some services are not available!", gin.H{
-			"status": "degraded",
+		response := helper.PrepareResponse(constant.MessageServicesUnhealthy, gin.H{
+			"status": constant.HealthStatusDegraded,
 		})
 		c.JSON(http.StatusServiceUnavailable, response)
 		return
 	}
 
 	prometheus.ServiceHealth.Set(1)
-	response := helper.PrepareResponse("All services are healthy!", gin.H{
-		"status": "healthy",
+	response := helper.PrepareResponse(constant.MessageServicesHealthy, gin.H{
+		"status": constant.HealthStatusHealthy,
 	})
 	c.JSON(http.StatusOK, response)
 }
 
-func getServicesHealthStatus(c *gin.Context, h *HealthHandler) bool {
+func servicesHealthStatus(c *gin.Context, h *HealthHandler) bool {
 	ctx := c.Request.Context()
 
 	if err := h.authClient.Health(ctx); err != nil {

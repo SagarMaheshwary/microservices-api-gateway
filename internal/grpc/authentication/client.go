@@ -15,10 +15,10 @@ import (
 
 type DialFunc func(target string, opts ...grpc.DialOption) (*grpc.ClientConn, error)
 
-type ClientFactory func(c authpb.AuthenticationServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) AuthenticationService
+type ClientFactory func(c authpb.AuthenticationServiceClient, h healthpb.HealthClient, cfg *config.GRPCAuthenticationClient) AuthenticationService
 
 type InitClientOptions struct {
-	Config          *config.GRPCClient
+	Config          *config.GRPCAuthenticationClient
 	Dial            DialFunc
 	Factory         ClientFactory
 	DialOptions     []grpc.DialOption
@@ -29,7 +29,7 @@ func defaultDialer(target string, opts ...grpc.DialOption) (*grpc.ClientConn, er
 	return grpc.NewClient(target, opts...)
 }
 
-func defaultFactory(c authpb.AuthenticationServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) AuthenticationService {
+func defaultFactory(c authpb.AuthenticationServiceClient, h healthpb.HealthClient, cfg *config.GRPCAuthenticationClient) AuthenticationService {
 	return NewAuthenticationClient(c, h, cfg)
 }
 
@@ -53,13 +53,13 @@ func NewClient(ctx context.Context, opt *InitClientOptions) (AuthenticationServi
 		}
 	}
 
-	conn, err := opt.Dial(opt.Config.UploadServiceURL, opt.DialOptions...)
+	conn, err := opt.Dial(opt.Config.URL, opt.DialOptions...)
 	if err != nil {
-		logger.Error("Authentication gRPC client failed to connect on %q: %v", opt.Config.UploadServiceURL, err)
+		logger.Error("Authentication gRPC client failed to connect on %q: %v", opt.Config.URL, err)
 		return nil, nil, err
 	}
 
-	logger.Info("Authentication gRPC client connected on %q", opt.Config.UploadServiceURL)
+	logger.Info("Authentication gRPC client connected on %q", opt.Config.URL)
 
 	uploadClient := opt.Factory(
 		authpb.NewAuthenticationServiceClient(conn),
@@ -73,6 +73,6 @@ func NewClient(ctx context.Context, opt *InitClientOptions) (AuthenticationServi
 		}
 	}
 
-	logger.Info("Authentication gRPC client ready on %q", opt.Config.UploadServiceURL)
+	logger.Info("Authentication gRPC client ready on %q", opt.Config.URL)
 	return uploadClient, conn, nil
 }

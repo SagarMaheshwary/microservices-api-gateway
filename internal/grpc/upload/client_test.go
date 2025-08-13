@@ -68,9 +68,9 @@ func TestInitClient(t *testing.T) {
 			mockHealth := new(MockHealthClient)
 
 			opt := &upload.InitClientOptions{
-				Config: &config.GRPCClient{UploadServiceURL: "fake-url"},
+				Config: &config.GRPCUploadClient{URL: "fake-url"},
 				Dial:   tt.dialFunc,
-				Factory: func(c uploadpb.UploadServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) upload.UploadService {
+				Factory: func(c uploadpb.UploadServiceClient, h healthpb.HealthClient, cfg *config.GRPCUploadClient) upload.UploadService {
 					return upload.NewUploadClient(mockClient, mockHealth, cfg)
 				},
 			}

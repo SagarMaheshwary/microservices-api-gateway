@@ -27,7 +27,7 @@ func TestUploadClient_CreatePresignedUrl(t *testing.T) {
 			VideoUrl:     "https://example.com/presigned",
 		},
 	}
-	cfg := &config.GRPCClient{Timeout: 2 * time.Second}
+	cfg := &config.GRPCUploadClient{Timeout: 2 * time.Second}
 
 	tests := []struct {
 		name       string
@@ -84,7 +84,7 @@ func TestUploadClient_UploadedWebhook(t *testing.T) {
 	}
 	res := &uploadpb.UploadedWebhookResponse{Message: constant.MessageOK, Data: &uploadpb.UploadedWebhookResponseData{}}
 
-	cfg := &config.GRPCClient{Timeout: 2 * time.Second}
+	cfg := &config.GRPCUploadClient{Timeout: 2 * time.Second}
 
 	tests := []struct {
 		name       string
@@ -133,6 +133,8 @@ func TestUploadClient_UploadedWebhook(t *testing.T) {
 }
 
 func TestUploadClient_Health(t *testing.T) {
+	cfg := &config.GRPCUploadClient{Timeout: 2 * time.Second}
+
 	tests := []struct {
 		name      string
 		mockResp  *healthpb.HealthCheckResponse
@@ -167,7 +169,6 @@ func TestUploadClient_Health(t *testing.T) {
 			mockUpload := new(MockUploadServiceClient)
 			mockHealth := new(MockHealthClient)
 
-			cfg := &config.GRPCClient{Timeout: 2 * time.Second}
 			client := upload.NewUploadClient(mockUpload, mockHealth, cfg)
 
 			mockHealth.On("Check", mock.Anything, &healthpb.HealthCheckRequest{}).

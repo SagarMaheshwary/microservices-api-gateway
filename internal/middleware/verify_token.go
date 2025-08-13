@@ -1,17 +1,19 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/constant"
-	authrpc "github.com/sagarmaheshwary/microservices-api-gateway/internal/grpc/authentication"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/helper"
 	authpb "github.com/sagarmaheshwary/microservices-api-gateway/internal/proto/authentication/authentication"
 	"github.com/sagarmaheshwary/microservices-api-gateway/internal/types"
 )
 
-func VerifyTokenMiddleware(authClient authrpc.AuthenticationService) gin.HandlerFunc {
+type VerifyTokenFunc func(ctx context.Context, in *authpb.VerifyTokenRequest, token string) (*authpb.VerifyTokenResponse, error)
+
+func VerifyTokenMiddleware(verifyToken VerifyTokenFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var h types.AuthorizationHeader
 		if err := c.ShouldBindHeader(&h); err != nil {
@@ -20,7 +22,7 @@ func VerifyTokenMiddleware(authClient authrpc.AuthenticationService) gin.Handler
 			return
 		}
 
-		response, err := authClient.VerifyToken(c.Request.Context(), &authpb.VerifyTokenRequest{}, h.Token)
+		response, err := verifyToken(c.Request.Context(), &authpb.VerifyTokenRequest{}, h.Token)
 		if err != nil {
 			status, response := helper.PrepareResponseFromGRPCError(err, &types.VerifyTokenValidationError{})
 			c.AbortWithStatusJSON(status, response)

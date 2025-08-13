@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"path"
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -31,36 +34,40 @@ func PrepareResponse(message string, data any) gin.H {
 }
 
 func PrepareResponseFromValidationError(err error, obj any) gin.H {
-	errors := map[string][]string{}
+	errorsMap := map[string][]string{}
 
-	for _, e := range err.(validator.ValidationErrors) {
-		f, _ := reflect.TypeOf(obj).Elem().FieldByName(e.Field())
-		field, _ := f.Tag.Lookup("json")
-
-		errors[field] = []string{ValidationErrorByTag(e.Tag(), field)}
-	}
-
-	fields := reflect.VisibleFields(reflect.Indirect(reflect.ValueOf(obj)).Type())
-
-	//Set non-error key/value pair as empty slice to
-	//keep "errors" field consistent with grpc response.
-	for _, field := range fields {
-		t, _ := field.Tag.Lookup("json")
-
-		if _, ok := errors[t]; !ok {
-			errors[t] = []string{}
+	if ve, ok := err.(validator.ValidationErrors); ok {
+		for _, e := range ve {
+			f, _ := reflect.TypeOf(obj).Elem().FieldByName(e.Field())
+			field, _ := f.Tag.Lookup("json")
+			errorsMap[field] = []string{ValidationErrorByTag(e.Tag(), field)}
 		}
+
+		// Add empty slices for fields without errors to keep structure consistent
+		fields := reflect.VisibleFields(reflect.Indirect(reflect.ValueOf(obj)).Type())
+		for _, field := range fields {
+			t, _ := field.Tag.Lookup("json")
+			if _, ok := errorsMap[t]; !ok {
+				errorsMap[t] = []string{}
+			}
+		}
+
+		return PrepareResponse(constant.MessageBadRequest, gin.H{
+			"errors": errorsMap,
+		})
 	}
 
 	return PrepareResponse(constant.MessageBadRequest, gin.H{
-		"errors": errors,
+		"errors": errorsMap,
 	})
 }
 
 func ValidationErrorByTag(tag string, field string) string {
 	switch tag {
 	case "required":
-		return fmt.Sprintf("%s is a required", field)
+		return fmt.Sprintf("%s is required", field)
+	case "invalid":
+		return fmt.Sprintf("%s is invalid", field)
 	case "email":
 		return fmt.Sprintf("%s must be an email", field)
 	}
@@ -129,6 +136,26 @@ func HTTPCodeToMessage(code int) string {
 	}
 }
 
-func StringPTR(s string) *string {
-	return &s
+func GetEnv(key string, defaultVal string) string {
+	if val := os.Getenv(key); val != "" {
+		return val
+	}
+
+	return defaultVal
+}
+
+func GetEnvInt(key string, defaultVal int) int {
+	if val, err := strconv.Atoi(os.Getenv(key)); err == nil {
+		return val
+	}
+
+	return defaultVal
+}
+
+func GetEnvDurationSeconds(key string, defaultVal time.Duration) time.Duration {
+	if val, err := strconv.Atoi(os.Getenv(key)); err == nil {
+		return time.Duration(val) * time.Second
+	}
+
+	return defaultVal * time.Second
 }

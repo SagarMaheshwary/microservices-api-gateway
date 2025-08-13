@@ -21,12 +21,12 @@ type AuthenticationService interface {
 }
 
 type AuthenticationClient struct {
-	config *config.GRPCClient
+	config *config.GRPCAuthenticationClient
 	client authpb.AuthenticationServiceClient
 	health healthpb.HealthClient
 }
 
-func NewAuthenticationClient(c authpb.AuthenticationServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) *AuthenticationClient {
+func NewAuthenticationClient(c authpb.AuthenticationServiceClient, h healthpb.HealthClient, cfg *config.GRPCAuthenticationClient) *AuthenticationClient {
 	return &AuthenticationClient{
 		client: c,
 		health: h,

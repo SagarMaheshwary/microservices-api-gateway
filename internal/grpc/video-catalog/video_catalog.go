@@ -17,12 +17,12 @@ type VideoCatalogService interface {
 }
 
 type VideoCatalogClient struct {
-	config *config.GRPCClient
+	config *config.GRPCVideoCatalogClient
 	client videocatalogpb.VideoCatalogServiceClient
 	health healthpb.HealthClient
 }
 
-func NewVideoCatalogClient(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) *VideoCatalogClient {
+func NewVideoCatalogClient(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCVideoCatalogClient) *VideoCatalogClient {
 	return &VideoCatalogClient{
 		client: c,
 		health: h,

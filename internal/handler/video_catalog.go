@@ -35,7 +35,7 @@ func (v *VideoCatalogHandler) FindById(c *gin.Context) {
 	videoId := c.Param("id")
 	id, err := strconv.Atoi(videoId)
 	if err != nil {
-		logger.Error("Unable to parse video id %v", err)
+		logger.Error("Unable to parse video id %v, %v", err, videoId)
 		c.JSON(http.StatusBadRequest, helper.PrepareResponse(constant.MessageBadRequest, gin.H{}))
 		return
 	}

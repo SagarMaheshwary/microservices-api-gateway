@@ -15,10 +15,10 @@ import (
 
 type DialFunc func(target string, opts ...grpc.DialOption) (*grpc.ClientConn, error)
 
-type ClientFactory func(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) VideoCatalogService
+type ClientFactory func(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCVideoCatalogClient) VideoCatalogService
 
 type InitClientOptions struct {
-	Config          *config.GRPCClient
+	Config          *config.GRPCVideoCatalogClient
 	Dial            DialFunc
 	Factory         ClientFactory
 	DialOptions     []grpc.DialOption
@@ -29,7 +29,7 @@ func defaultDialer(target string, opts ...grpc.DialOption) (*grpc.ClientConn, er
 	return grpc.NewClient(target, opts...)
 }
 
-func defaultFactory(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) VideoCatalogService {
+func defaultFactory(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCVideoCatalogClient) VideoCatalogService {
 	return NewVideoCatalogClient(c, h, cfg)
 }
 
@@ -53,13 +53,13 @@ func NewClient(ctx context.Context, opt *InitClientOptions) (VideoCatalogService
 		}
 	}
 
-	conn, err := opt.Dial(opt.Config.UploadServiceURL, opt.DialOptions...)
+	conn, err := opt.Dial(opt.Config.URL, opt.DialOptions...)
 	if err != nil {
-		logger.Error("VideoCatalog gRPC client failed to connect on %q: %v", opt.Config.UploadServiceURL, err)
+		logger.Error("VideoCatalog gRPC client failed to connect on %q: %v", opt.Config.URL, err)
 		return nil, nil, err
 	}
 
-	logger.Info("VideoCatalog gRPC client connected on %q", opt.Config.UploadServiceURL)
+	logger.Info("VideoCatalog gRPC client connected on %q", opt.Config.URL)
 
 	uploadClient := opt.Factory(
 		videocatalogpb.NewVideoCatalogServiceClient(conn),
@@ -73,6 +73,6 @@ func NewClient(ctx context.Context, opt *InitClientOptions) (VideoCatalogService
 		}
 	}
 
-	logger.Info("VideoCatalog gRPC client ready on %q", opt.Config.UploadServiceURL)
+	logger.Info("VideoCatalog gRPC client ready on %q", opt.Config.URL)
 	return uploadClient, conn, nil
 }

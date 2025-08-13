@@ -3,7 +3,6 @@ package config
 import (
 	"os"
 	"path"
-	"strconv"
 	"time"
 
 	"github.com/gofor-little/env"
@@ -12,10 +11,12 @@ import (
 )
 
 type Config struct {
-	HTTPServer *HTTPServer
-	App        *App
-	GRPCClient *GRPCClient
-	Jaeger     *Jaeger
+	HTTPServer               *HTTPServer
+	App                      *App
+	GRPCAuthenticationClient *GRPCAuthenticationClient
+	GRPCUploadClient         *GRPCUploadClient
+	GRPCVideoCatalogClient   *GRPCVideoCatalogClient
+	Jaeger                   *Jaeger
 }
 
 type HTTPServer struct {
@@ -27,70 +28,81 @@ type App struct {
 	Env string
 }
 
-type GRPCClient struct {
-	AuthenticationServiceURL string
-	UploadServiceURL         string
-	VideoCatalogServiceURL   string
-	Timeout                  time.Duration
+type GRPCAuthenticationClient struct {
+	URL     string
+	Timeout time.Duration
+}
+
+type GRPCUploadClient struct {
+	URL     string
+	Timeout time.Duration
+}
+
+type GRPCVideoCatalogClient struct {
+	URL     string
+	Timeout time.Duration
 }
 
 type Jaeger struct {
 	URL string
 }
 
-func NewConfig() *Config {
-	envPath := path.Join(helper.GetRootDir(), "..", ".env")
+type LoaderOptions struct {
+	EnvPath     string
+	EnvLoader   func(string) error
+	FileChecker func(string) bool
+}
 
-	if _, err := os.Stat(envPath); err == nil {
-		if err := env.Load(envPath); err != nil {
-			logger.Fatal("Failed to load .env %q: %v", envPath, err)
+func NewConfigWithOptions(opts LoaderOptions) *Config {
+	envLoader := opts.EnvLoader
+	if envLoader == nil {
+		envLoader = func(path string) error { return env.Load(path) }
+	}
+	fileChecker := opts.FileChecker
+	if fileChecker == nil {
+		fileChecker = func(path string) bool {
+			_, err := os.Stat(path)
+			return err == nil
 		}
+	}
 
-		logger.Info("Loaded environment variables from %q", envPath)
+	if opts.EnvPath != "" && fileChecker(opts.EnvPath) {
+		if err := envLoader(opts.EnvPath); err != nil {
+			logger.Panic("Failed to load .env %q: %v", opts.EnvPath, err)
+		}
+		logger.Info("Loaded environment variables from %q", opts.EnvPath)
 	} else {
 		logger.Info(".env file not found, using system environment variables")
 	}
 
 	return &Config{
 		HTTPServer: &HTTPServer{
-			Host: getEnv("HTTP_HOST", "localhost"),
-			Port: getEnvInt("HTTP_PORT", 4000),
+			Host: helper.GetEnv("HTTP_HOST", "localhost"),
+			Port: helper.GetEnvInt("HTTP_PORT", 4000),
 		},
 		App: &App{
-			Env: getEnv("APP_ENV", "development"),
+			Env: helper.GetEnv("APP_ENV", "development"),
 		},
-		GRPCClient: &GRPCClient{
-			AuthenticationServiceURL: getEnv("GRPC_AUTHENTICATION_SERVICE_URL", "authentication-service:5001"),
-			UploadServiceURL:         getEnv("GRPC_UPLOAD_SERVICE_URL", "upload-service:5002"),
-			VideoCatalogServiceURL:   getEnv("GRPC_VIDEO_CATALOG_SERVICE_URL", "video-catalog-service:5002"),
-			Timeout:                  getEnvDurationSeconds("GRPC_CLIENT_TIMEOUT_SECONDS", 5),
+		GRPCAuthenticationClient: &GRPCAuthenticationClient{
+			URL:     helper.GetEnv("GRPC_AUTHENTICATION_SERVICE_URL", "authentication-service:5001"),
+			Timeout: helper.GetEnvDurationSeconds("GRPC_AUTHENTICATION_SERVICE_TIMEOUT_SECONDS", 3),
+		},
+		GRPCUploadClient: &GRPCUploadClient{
+			URL:     helper.GetEnv("GRPC_UPLOAD_SERVICE_URL", "upload-service:5002"),
+			Timeout: helper.GetEnvDurationSeconds("GRPC_UPLOAD_SERVICE_TIMEOUT_SECONDS", 3),
+		},
+		GRPCVideoCatalogClient: &GRPCVideoCatalogClient{
+			URL:     helper.GetEnv("GRPC_VIDEO_CATALOG_SERVICE_URL", "video-catalog-service:5001"),
+			Timeout: helper.GetEnvDurationSeconds("GRPC_VIDEO_CATALOG_SERVICE_TIMEOUT_SECONDS", 3),
 		},
 		Jaeger: &Jaeger{
-			URL: getEnv("JAEGER_URL", "jaeger:4318"),
+			URL: helper.GetEnv("JAEGER_URL", "jaeger:4318"),
 		},
 	}
 }
 
-func getEnv(key string, defaultVal string) string {
-	if val := os.Getenv(key); val != "" {
-		return val
-	}
-
-	return defaultVal
-}
-
-func getEnvInt(key string, defaultVal int) int {
-	if val, err := strconv.Atoi(os.Getenv(key)); err == nil {
-		return val
-	}
-
-	return defaultVal
-}
-
-func getEnvDurationSeconds(key string, defaultVal time.Duration) time.Duration {
-	if val, err := strconv.Atoi(os.Getenv(key)); err == nil {
-		return time.Duration(val) * time.Second
-	}
-
-	return defaultVal * time.Second
+func NewConfig() *Config {
+	return NewConfigWithOptions(LoaderOptions{
+		EnvPath: path.Join(helper.GetRootDir(), "..", ".env"),
+	})
 }

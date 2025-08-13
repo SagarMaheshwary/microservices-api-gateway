@@ -68,9 +68,9 @@ func TestInitClient(t *testing.T) {
 			mockHealth := new(MockHealthClient)
 
 			opt := &videocatalog.InitClientOptions{
-				Config: &config.GRPCClient{UploadServiceURL: "fake-url"},
+				Config: &config.GRPCVideoCatalogClient{URL: "fake-url"},
 				Dial:   tt.dialFunc,
-				Factory: func(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) videocatalog.VideoCatalogService {
+				Factory: func(c videocatalogpb.VideoCatalogServiceClient, h healthpb.HealthClient, cfg *config.GRPCVideoCatalogClient) videocatalog.VideoCatalogService {
 					return videocatalog.NewVideoCatalogClient(mockClient, mockHealth, cfg)
 				},
 			}

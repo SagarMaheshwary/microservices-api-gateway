@@ -13,6 +13,16 @@ const (
 	MessageServiceUnavailable  = "Service Unavailable"
 )
 
+const (
+	MessageServicesUnhealthy = "Some services are not available!"
+	MessageServicesHealthy   = "All services are healthy!"
+)
+
+const (
+	HealthStatusHealthy  = "healthy"
+	HealthStatusDegraded = "degraded"
+)
+
 // gRPC metadata headers
 const (
 	GRPCHeaderAuthorization = "authorization"

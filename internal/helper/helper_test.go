@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -45,7 +46,7 @@ func TestValidationErrorByTag(t *testing.T) {
 		field    string
 		expected string
 	}{
-		{"required", "email", "email is a required"},
+		{"required", "email", "email is required"},
 		{"email", "email", "email must be an email"},
 		{"unknown", "field", ""},
 	}
@@ -130,5 +131,124 @@ func TestHTTPCodeToMessage(t *testing.T) {
 
 	for _, tt := range tests {
 		assert.Equal(t, tt.expected, helper.HTTPCodeToMessage(tt.code))
+	}
+}
+
+func TestGetEnv(t *testing.T) {
+	tests := []struct {
+		name       string
+		envKey     string
+		envValue   string
+		defaultVal string
+		expected   string
+	}{
+		{
+			name:       "env variable set",
+			envKey:     "TEST_ENV_STRING",
+			envValue:   "value123",
+			defaultVal: "default",
+			expected:   "value123",
+		},
+		{
+			name:       "env variable not set, uses default",
+			envKey:     "TEST_ENV_STRING_NOT_SET",
+			envValue:   "",
+			defaultVal: "default",
+			expected:   "default",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.envValue != "" {
+				t.Setenv(tt.envKey, tt.envValue)
+			}
+			got := helper.GetEnv(tt.envKey, tt.defaultVal)
+			assert.Equal(t, tt.expected, got)
+		})
+	}
+}
+
+func TestGetEnvInt(t *testing.T) {
+	tests := []struct {
+		name       string
+		envKey     string
+		envValue   string
+		defaultVal int
+		expected   int
+	}{
+		{
+			name:       "valid int from env",
+			envKey:     "TEST_ENV_INT",
+			envValue:   "42",
+			defaultVal: 10,
+			expected:   42,
+		},
+		{
+			name:       "invalid int from env, fallback to default",
+			envKey:     "TEST_ENV_INT_INVALID",
+			envValue:   "abc",
+			defaultVal: 10,
+			expected:   10,
+		},
+		{
+			name:       "env not set, fallback to default",
+			envKey:     "TEST_ENV_INT_NOT_SET",
+			envValue:   "",
+			defaultVal: 10,
+			expected:   10,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.envValue != "" {
+				t.Setenv(tt.envKey, tt.envValue)
+			}
+			got := helper.GetEnvInt(tt.envKey, tt.defaultVal)
+			assert.Equal(t, tt.expected, got)
+		})
+	}
+}
+
+func TestGetEnvDurationSeconds(t *testing.T) {
+	tests := []struct {
+		name       string
+		envKey     string
+		envValue   string
+		defaultVal time.Duration
+		expected   time.Duration
+	}{
+		{
+			name:       "valid duration from env",
+			envKey:     "TEST_ENV_DURATION",
+			envValue:   "3",
+			defaultVal: 5,
+			expected:   3 * time.Second,
+		},
+		{
+			name:       "invalid duration from env, fallback",
+			envKey:     "TEST_ENV_DURATION_INVALID",
+			envValue:   "abc",
+			defaultVal: 5,
+			expected:   5 * time.Second,
+		},
+		{
+			name:       "env not set, fallback",
+			envKey:     "TEST_ENV_DURATION_NOT_SET",
+			envValue:   "",
+			defaultVal: 5,
+			expected:   5 * time.Second,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.envValue != "" {
+				t.Setenv(tt.envKey, tt.envValue)
+			}
+			got := helper.GetEnvDurationSeconds(tt.envKey, tt.defaultVal)
+			assert.Equal(t, tt.expected, got)
+		})
 	}
 }

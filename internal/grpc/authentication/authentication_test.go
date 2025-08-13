@@ -39,7 +39,7 @@ func TestAuthenticationClient_Register(t *testing.T) {
 		Data:    &authpb.RegisterResponseData{Token: "token", User: dummyUser},
 	}
 
-	cfg := &config.GRPCClient{Timeout: 2 * time.Second}
+	cfg := &config.GRPCAuthenticationClient{Timeout: 2 * time.Second}
 
 	tests := []struct {
 		name       string
@@ -112,7 +112,7 @@ func TestAuthenticationClient_Login(t *testing.T) {
 		Data:    &authpb.LoginResponseData{Token: "token", User: dummyUser},
 	}
 
-	cfg := &config.GRPCClient{Timeout: 2 * time.Second}
+	cfg := &config.GRPCAuthenticationClient{Timeout: 2 * time.Second}
 
 	tests := []struct {
 		name       string
@@ -182,7 +182,7 @@ func TestAuthenticationClient_VerifyToken(t *testing.T) {
 		Data:    &authpb.VerifyTokenResponseData{User: dummyUser},
 	}
 
-	cfg := &config.GRPCClient{Timeout: 2 * time.Second}
+	cfg := &config.GRPCAuthenticationClient{Timeout: 2 * time.Second}
 
 	tests := []struct {
 		name       string
@@ -252,7 +252,7 @@ func TestAuthenticationClient_Logout(t *testing.T) {
 		Data:    &authpb.LogoutResponseData{},
 	}
 
-	cfg := &config.GRPCClient{Timeout: 2 * time.Second}
+	cfg := &config.GRPCAuthenticationClient{Timeout: 2 * time.Second}
 
 	tests := []struct {
 		name       string
@@ -316,6 +316,8 @@ func TestAuthenticationClient_Logout(t *testing.T) {
 }
 
 func TestUploadClient_Health(t *testing.T) {
+	cfg := &config.GRPCAuthenticationClient{Timeout: 2 * time.Second}
+
 	tests := []struct {
 		name      string
 		mockResp  *healthpb.HealthCheckResponse
@@ -350,7 +352,6 @@ func TestUploadClient_Health(t *testing.T) {
 			mockUpload := new(MockAuthenticationServiceClient)
 			mockHealth := new(MockHealthClient)
 
-			cfg := &config.GRPCClient{Timeout: 2 * time.Second}
 			client := auth.NewAuthenticationClient(mockUpload, mockHealth, cfg)
 
 			mockHealth.On("Check", mock.Anything, &healthpb.HealthCheckRequest{}).

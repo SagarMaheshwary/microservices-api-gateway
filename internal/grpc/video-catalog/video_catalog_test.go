@@ -42,7 +42,7 @@ func TestVideoCatalogClient_FindAll(t *testing.T) {
 		},
 	}
 
-	cfg := &config.GRPCClient{Timeout: 2 * time.Second}
+	cfg := &config.GRPCVideoCatalogClient{Timeout: 2 * time.Second}
 
 	tests := []struct {
 		name       string
@@ -99,7 +99,7 @@ func TestVideoCatalogClient_FindById(t *testing.T) {
 		},
 	}
 
-	cfg := &config.GRPCClient{Timeout: 2 * time.Second}
+	cfg := &config.GRPCVideoCatalogClient{Timeout: 2 * time.Second}
 
 	tests := []struct {
 		name       string
@@ -163,6 +163,8 @@ func TestVideoCatalogClient_FindById(t *testing.T) {
 }
 
 func TestUploadClient_Health(t *testing.T) {
+	cfg := &config.GRPCVideoCatalogClient{Timeout: 2 * time.Second}
+
 	tests := []struct {
 		name      string
 		mockResp  *healthpb.HealthCheckResponse
@@ -197,7 +199,6 @@ func TestUploadClient_Health(t *testing.T) {
 			mockUpload := new(MockVideoCatalogServiceClient)
 			mockHealth := new(MockHealthClient)
 
-			cfg := &config.GRPCClient{Timeout: 2 * time.Second}
 			client := videocatalog.NewVideoCatalogClient(mockUpload, mockHealth, cfg)
 
 			mockHealth.On("Check", mock.Anything, &healthpb.HealthCheckRequest{}).

@@ -19,12 +19,12 @@ type UploadService interface {
 }
 
 type UploadClient struct {
-	config *config.GRPCClient
+	config *config.GRPCUploadClient
 	client uploadpb.UploadServiceClient
 	health healthpb.HealthClient
 }
 
-func NewUploadClient(c uploadpb.UploadServiceClient, h healthpb.HealthClient, cfg *config.GRPCClient) *UploadClient {
+func NewUploadClient(c uploadpb.UploadServiceClient, h healthpb.HealthClient, cfg *config.GRPCUploadClient) *UploadClient {
 	return &UploadClient{client: c, health: h, config: cfg}
 }
 

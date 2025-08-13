@@ -22,7 +22,8 @@ func NewAuthHandler(c authrpc.AuthenticationService) *AuthenticationHandler {
 func (a *AuthenticationHandler) Register(c *gin.Context) {
 	var in types.RegisterInput
 	if err := c.ShouldBindJSON(&in); err != nil {
-		c.JSON(http.StatusBadRequest, helper.PrepareResponseFromValidationError(err, &types.RegisterValidationError{}))
+		res := helper.PrepareResponseFromValidationError(err, &types.RegisterValidationError{})
+		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
@@ -44,7 +45,7 @@ func (a *AuthenticationHandler) Register(c *gin.Context) {
 
 func (a *AuthenticationHandler) Login(c *gin.Context) {
 	var in types.LoginInput
-	if err := c.ShouldBind(&in); err != nil {
+	if err := c.ShouldBindJSON(&in); err != nil {
 		res := helper.PrepareResponseFromValidationError(err, &types.LoginValidationError{})
 		c.JSON(http.StatusBadRequest, res)
 		return
