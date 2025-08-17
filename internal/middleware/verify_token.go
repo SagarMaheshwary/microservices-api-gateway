@@ -17,19 +17,18 @@ func VerifyTokenMiddleware(verifyToken VerifyTokenFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var h types.AuthorizationHeader
 		if err := c.ShouldBindHeader(&h); err != nil {
-			response := helper.PrepareResponse(constant.MessageUnauthorized, gin.H{})
-			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, helper.PrepareResponse(constant.MessageUnauthorized, gin.H{}))
 			return
 		}
 
-		response, err := verifyToken(c.Request.Context(), &authpb.VerifyTokenRequest{}, h.Token)
+		res, err := verifyToken(c.Request.Context(), &authpb.VerifyTokenRequest{}, h.Token)
 		if err != nil {
-			status, response := helper.PrepareResponseFromGRPCError(err, &types.VerifyTokenValidationError{})
-			c.AbortWithStatusJSON(status, response)
+			status, res := helper.PrepareResponseFromGRPCError(err, &types.VerifyTokenValidationError{})
+			c.AbortWithStatusJSON(status, res)
 			return
 		}
 
-		c.Set(constant.AuthUser, response.Data.User)
+		c.Set(constant.AuthUser, res.Data.User)
 		c.Set(constant.GRPCHeaderAuthorization, h)
 		c.Next()
 	}
