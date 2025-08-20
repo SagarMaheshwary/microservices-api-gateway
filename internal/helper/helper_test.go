@@ -3,6 +3,9 @@ package helper_test
 import (
 	"encoding/json"
 	"net/http"
+	"path"
+	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 
@@ -27,8 +30,14 @@ type DummyValidationError struct {
 }
 
 func TestGetRootDir(t *testing.T) {
-	root := helper.GetRootDir()
-	assert.NotEmpty(t, root)
+	// Derive the expected path using runtime.Caller in the test itself
+	_, b, _, _ := runtime.Caller(0)
+	expected := filepath.Dir(path.Join(path.Dir(b)))
+
+	t.Run("should return root directory of project", func(t *testing.T) {
+		root := helper.GetRootDir()
+		assert.Equal(t, expected, root)
+	})
 }
 
 func TestPrepareResponse(t *testing.T) {
